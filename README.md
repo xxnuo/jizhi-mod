@@ -17,7 +17,22 @@
 
 ## 安装
 
-TODO
+### 预构建
+
+商店下载：审核中
+
+Releases 下载：安装包太大，GitHub Releases 无法上传，请耐心等待后续更新网盘下载链接。
+
+### 本地构建
+
+```sh
+git clone https://github.com/xxnuo/jizhi-mod.git
+cd jizhi-mod
+pnpm install
+pnpm zip:all
+```
+
+浏览器直接加载 .output 文件夹下对应浏览器的拓展文件为 “加载解压缩的拓展”。
 
 ## 使用说明
 
