@@ -2,3 +2,4 @@
 .wxt
 node_modules
 /test
+.output.zip

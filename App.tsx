@@ -43,12 +43,12 @@ export default function App() {
     document.documentElement.setAttribute("data-theme", isDarkMode ? DARK_THEME : LIGHT_THEME);
   }, [isDarkMode]);
 
-  const poemRaw = getRandomPoem();
+  const [poemRaw, _] = useState<Poem>(getRandomPoem());
   const [poem, setPoem] = useState<Poem>(poemRaw);
 
   useEffect(() => {
     let newTitle = poem.title;
-    console.log(newTitle);
+    // console.log(newTitle);
     if (!/^[A-Za-z]/.test(newTitle[0])) {
       // 处理中文原句，去除符号
       newTitle = newTitle.replace(/[^\u4E00-\u9FA5\t\n\r]/g, " ");
@@ -58,10 +58,10 @@ export default function App() {
 
       if (newTitle.length >= POEM_MAXLINELENGTH) {
         const lines = newTitle.split(/\s+/);
-        console.log(lines);
+        // console.log(lines);
         // 偶数个句子则每两个句子拼接成一行，奇数个句子则每个句子单独一行
         const mod = lines.length % 2;
-        console.log(mod);
+        // console.log(mod);
         const result = [];
         if (mod === 0) {
           for (let i = 0; i < lines.length; i += 2) {
@@ -73,7 +73,7 @@ export default function App() {
           }
         }
 
-        console.log(result);
+        // console.log(result);
         newTitle = result.join("\n");
       }
     }
