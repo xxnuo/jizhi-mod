@@ -17,20 +17,30 @@ import JSON_POEM from "sentences-bundle/sentences/i.json";
 //   },
 // ];
 
-// 定义诗句对象的接口
-export interface Poem {
-  title: string;
-  from: string;
-  who?: string;
-}
+// // 定义诗句对象的接口
+// export interface Poem {
+//   title: string;
+//   from: string;
+//   who?: string;
+// }
 
-export function getRandomPoem(): Poem {
+/**
+ * @typedef {Object} Poem
+ * @property {string} title - 诗的标题
+ * @property {string} from - 诗的来源
+ * @property {string} who - 诗的作者
+ */
+
+/**
+ * @returns {Poem} 返回一个随机的诗句对象
+ */
+export function getRandomPoem() {
   const randomIndex = Math.floor(Math.random() * JSON_POEM.length);
   const poem = JSON_POEM[randomIndex];
   // const poem = JSON_POEM[0];
   return {
     title: poem.hitokoto,
     from: poem.from,
-    who: poem.from_who as string,
+    who: poem.from_who,
   };
 }

@@ -2,7 +2,7 @@ import { DARK_THEME, LIGHT_THEME } from "./components/Constants";
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./App.tsx", "./Layout.tsx", "./components/*.ts", "./entrypoints/newtab/index.html"],
+  content: ["./App.jsx", "./Layout.jsx", "./components/*.js", "./entrypoints/newtab/index.html"],
   plugins: [require("daisyui")],
   daisyui: {
     themes: [LIGHT_THEME, DARK_THEME],
