@@ -1,13 +1,13 @@
-import { DARK_THEME, FONTNAME_LIST, LIGHT_THEME, POEM_MAXLINELENGTH } from "@/components/Constants";
-import { getRandomPoem } from "@/components/Poem";
-import type { Poem } from "@/components/Poem";
+import { DARK_THEME, FONTNAME_LIST, LIGHT_THEME, POEM_MAXLINELENGTH } from "./components/Constants";
+import { getRandomPoem } from "./components/Poem";
+// import type { Poem } from "./components/Poem";
 
 import { useEffect, useState } from "react";
 import { IoMoonOutline as MoonIcon, IoSunnyOutline as SunIcon } from "react-icons/io5";
 import { BiFontFamily as FontIcon } from "react-icons/bi";
 
 import "animate.css";
-import "@/style.css";
+import "./style.css";
 
 export default function App() {
   const storedFontIndex = localStorage.getItem("fontIndex");
@@ -28,7 +28,8 @@ export default function App() {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDarkMode(mediaQuery.matches);
 
-    const handleChange = (event: MediaQueryListEvent) => {
+    // const handleChange = (event: MediaQueryListEvent) => {
+    const handleChange = (event) => {
       setIsDarkMode(event.matches);
     };
 
@@ -43,8 +44,8 @@ export default function App() {
     document.documentElement.setAttribute("data-theme", isDarkMode ? DARK_THEME : LIGHT_THEME);
   }, [isDarkMode]);
 
-  const [poemRaw, _] = useState<Poem>(getRandomPoem());
-  const [poem, setPoem] = useState<Poem>(poemRaw);
+  const [poemRaw, _] = useState(getRandomPoem());
+  const [poem, setPoem] = useState(poemRaw);
 
   useEffect(() => {
     let newTitle = poem.title;
@@ -90,11 +91,10 @@ export default function App() {
     <div
       id="app"
       className="custom-font animate__animated animate__fadeIn animate__faster"
-      style={
-        {
-          "--custom-font-name": FONTNAME_LIST[fontIndex],
-        } as any
-      }
+      style={{
+        "--custom-font-name": FONTNAME_LIST[fontIndex],
+        // } as any
+      }}
     >
       <div className="min-h-screen flex items-center justify-center">
         <div className="justify-center text-center">
@@ -155,13 +155,7 @@ export default function App() {
               <FontIcon className="swap-on fill-current w-8 h-8" />
               <FontIcon className="swap-off fill-current w-8 h-8" />
             </label>
-            {/* <p
-              className="cursor-pointer ml-2"
-              onClick={() => {
-                setFontIndex((fontIndex + 1) % FONTNAME_LIST.length)
-              }}>
-              <FontIcon className="w-8 h-8" />
-            </p> */}
+
           </div>
         </div>
       </div>
