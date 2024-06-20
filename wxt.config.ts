@@ -2,12 +2,11 @@ import { defineConfig } from "wxt";
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
-  imports: {
-    eslintrc: {
-      enabled: true,
-    },
-  },
   modules: ["@wxt-dev/module-react"],
+  vite: () => ({
+    
+  }),
+
   manifest: {
     author: "unicar9,xxnuo",
     name: "几枝夏",

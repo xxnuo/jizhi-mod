@@ -3,3 +3,5 @@
 node_modules
 /test
 .output.zip
+/node_modules-pnpm
+stats.html
