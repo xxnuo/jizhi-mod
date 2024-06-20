@@ -56,7 +56,11 @@
 
 - [Firefox Addons](https://addons.mozilla.org/zh-CN/firefox/addon/%E5%87%A0%E6%9E%9D%E5%A4%8F/)（Firefox、Waterfox 等使用）
 
-Releases 预构建下载：安装包太大，GitHub Releases 无法上传，请耐心等待后续更新网盘下载链接或自行本地构建。
+> 注：若无法访问 Chrome Web Store 可在国内 Chrome Web Store 克隆站下载安装 [几枝夏 | Chrome扩展 - Crx搜搜](https://www.crxsoso.com/webstore/detail/aihpjpjndpdkbmdjghjglbmippnjlkcp)
+
+#### Releases 预构建下载：
+
+> 安装包太大，GitHub Releases 无法上传，请耐心等待后续更新网盘下载链接或自行本地构建。
 
 ## 预览
 
