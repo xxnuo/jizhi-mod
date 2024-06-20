@@ -1,11 +1,11 @@
 /* 字体列表定义在 ./components/Constants.ts */
-@import "./components/fonts/hldqjt/dist/qiji-fallback/result.css";
-@import "./components/fonts/ysfxt/dist/Slidefu-Regular/result.css";
-@import "./components/fonts/rzjkxzdmh/dist/nzgrKangxi/result.css";
-@import "./components/fonts/yfxy/dist/YuFanXinYu-Regular/result.css";
-@import "./components/fonts/mzxst/dist/MZPXorig/result.css";
-@import "./components/fonts/yozai/dist/Yozai-Regular/result.css";
-@import "./components/fonts/lxgwwenkai/dist/LXGWWenKai-Light/result.css";
+@import "./node_modules/@chinese-fonts/hldqjt/dist/qiji-fallback/result.css";
+@import "./node_modules/@chinese-fonts/ysfxt/dist/Slidefu-Regular/result.css";
+@import "./node_modules/@chinese-fonts/rzjkxzdmh/dist/nzgrKangxi/result.css";
+@import "./node_modules/@chinese-fonts/yfxy/dist/YuFanXinYu-Regular/result.css";
+@import "./node_modules/@chinese-fonts/mzxst/dist/MZPXorig/result.css";
+@import "./node_modules/@chinese-fonts/yozai/dist/Yozai-Regular/result.css";
+@import "./node_modules/@chinese-fonts/lxgwwenkai/dist/LXGWWenKai-Light/result.css";
 
 @tailwind base;
 @tailwind components;

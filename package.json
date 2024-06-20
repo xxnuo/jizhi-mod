@@ -10,8 +10,7 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "zip:all": "pnpm zip && pnpm zip:firefox",
-    "postinstall": "wxt prepare",
-    "res": "node scripts/copyFonts.js"
+    "postinstall": "wxt prepare"
   },
   "dependencies": {
     "react": "^18.3.1",
