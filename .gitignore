@@ -5,3 +5,4 @@ node_modules
 .output.zip
 /node_modules-pnpm
 stats.html
+/components/fonts
