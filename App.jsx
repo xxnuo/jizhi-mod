@@ -44,8 +44,7 @@ export default function App() {
     document.documentElement.setAttribute("data-theme", isDarkMode ? DARK_THEME : LIGHT_THEME);
   }, [isDarkMode]);
 
-  const [poemRaw, _] = useState(getRandomPoem());
-  const [poem, setPoem] = useState(poemRaw);
+  const [poem, setPoem] = useState(getRandomPoem());
 
   useEffect(() => {
     let newTitle = poem.title;
@@ -100,14 +99,14 @@ export default function App() {
         <div className="justify-center text-center">
           <div className="justify-center item-center flex flex-col">
             <p className="text-5xl mb-10 break-words whitespace-pre-wrap">
-              <a href={`https://www.baidu.com/s?wd=${poemRaw.title}`} target="_blank">
+              <a href={`https://www.baidu.com/s?wd=${poem.title.replace("\n", " ")}`} target="_blank">
                 {poem.title}
               </a>
             </p>
           </div>
           <div className="flex justify-center">
             <p className="text-3xl break-words mr-4">
-              <a href={`https://www.baidu.com/s?wd=《${poem.from}》${poem.who ? poem.who : ""}`} target="_blank">
+              <a href={`https://www.baidu.com/s?wd=${poem.from} ${poem.who ? poem.who : ""}`} target="_blank">
                 「{poem.from}」
               </a>
             </p>
@@ -115,7 +114,7 @@ export default function App() {
               <p className="flex align-items-center justify-center text-center text-2xl rounded-md pr-1 mr-1 custom-author-style">
                 <a
                   className="pl-0.5 pr-1"
-                  href={`https://www.baidu.com/s?wd=《${poem.from}》${poem.who ? poem.who : ""}`}
+                  href={`https://www.baidu.com/s?wd=${poem.who ? poem.who : ""}`}
                   target="_blank"
                 >
                   {poem.who}
@@ -155,7 +154,6 @@ export default function App() {
               <FontIcon className="swap-on fill-current w-8 h-8" />
               <FontIcon className="swap-off fill-current w-8 h-8" />
             </label>
-
           </div>
         </div>
       </div>
