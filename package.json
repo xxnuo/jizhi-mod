@@ -1,7 +1,7 @@
 {
   "name": "jizhi-mod",
   "description": "https://github.com/xxnuo/jizhi-mod",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "scripts": {
     "dev": "wxt",
     "dev:firefox": "wxt -b firefox",
@@ -13,6 +13,7 @@
     "postinstall": "wxt prepare"
   },
   "dependencies": {
+    "driver.js": "^1.3.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

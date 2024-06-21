@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import { IoMoonOutline as MoonIcon, IoSunnyOutline as SunIcon } from "react-icons/io5";
 import { BiFontFamily as FontIcon } from "react-icons/bi";
 
+import { driver } from "driver.js";
+import "./node_modules/driver.js/dist/driver.css";
+
 import "animate.css";
 import "./style.css";
 
@@ -86,6 +89,45 @@ export default function App() {
     document.title = hasZh ? "新标签页" : "New Tab";
   }, []);
 
+  useEffect(() => {
+    const storedFirstRun = localStorage.getItem("firstRun");
+    if (!storedFirstRun || storedFirstRun === "1") {
+      const driverObj = driver({
+        popoverOffset: 10,
+        showProgress: true,
+        progressText: "第{{current}}条，共{{total}}条",
+        nextBtnText: "继续 →",
+        prevBtnText: "← 上一条",
+        doneBtnText: "完成引导",
+        onDestroyStarted: () => {
+          if (!driverObj.hasNextStep() || confirm("使用引导仅显示一次，是否直接结束引导？")) {
+            driverObj.destroy();
+            localStorage.setItem("firstRun", "0");
+          }
+        },
+        steps: [
+          {
+            element: "#theme-toggle",
+            popover: {
+              title: "使用引导：切换主题",
+              description: "页面默认跟随系统主题，点击按钮临时切换主题。",
+              side: "top",
+            },
+          },
+          {
+            element: "#font-toggle",
+            popover: {
+              title: "使用引导：切换字体",
+              description: "点击按钮切换你喜欢的字体，有七种风格迥异的字体可供选择。",
+              side: "top",
+            },
+          },
+        ],
+      });
+      driverObj.drive();
+    }
+  }, []);
+
   return (
     <div
       id="app"
@@ -129,22 +171,23 @@ export default function App() {
         {/* 主题切换按钮 */}
         <div className="tooltip" data-tip="切换主题">
           <div className="custom-settings-button-style">
-            <label tabIndex={0} className="swap swap-rotate">
+            <label id="theme-toggle" tabIndex={0} className="swap swap-rotate">
               <input
                 type="checkbox"
                 className="theme-controller"
                 checked={isDarkMode}
                 onChange={() => setIsDarkMode(!isDarkMode)}
               />
-              <SunIcon className="swap-on fill-current w-8 h-8" />
-              <MoonIcon className="swap-off fill-current w-8 h-8" />
+              <SunIcon className="swap-on fill-current w-7 h-7" />
+              <MoonIcon className="swap-off fill-current w-7 h-7" />
             </label>
           </div>
         </div>
+        <div className="ml-4"></div>
         {/* 字体切换按钮 */}
         <div className="tooltip" data-tip="切换字体">
-          <div className="custom-settings-button-style">
-            <label className="swap ml-2">
+          <div id="font-toggle" className="custom-settings-button-style">
+            <label id="theme-toggle" className="swap">
               <input
                 type="checkbox"
                 onClick={() => {

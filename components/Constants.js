@@ -3,9 +3,9 @@ export const LIGHT_THEME = "cupcake";
 export const DARK_THEME = "halloween";
 
 export const FONTNAME_LIST = [
-  "Slidefu",
-  "QIJIFALLBACK",
   "nzgrKangxi",
+  "QIJIFALLBACK",
+  "Slidefu",
   "YuFanXinYu",
   "MuzaiPixel",
   "Yozai",

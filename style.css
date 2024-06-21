@@ -21,6 +21,49 @@
   font-family: var(--custom-font-name), sans-serif;
 }
 
+/* 引导页样式 */
+
+.driver-popover,
+.driver-popover button {
+  /* 直接复制 daisyui 主题最终的样式颜色，跟随主题自动切换颜色 */
+  background-color: var(--fallback-b1, oklch(var(--b1) / 1));
+  color: var(--fallback-bc, oklch(var(--bc) / 1));
+}
+
+.driver-popover .driver-popover-title {
+  /* text-xl */
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.75rem; /* 28px */
+}
+.driver-popover .driver-popover-description {
+  /* text-lg */
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.75rem; /* 28px */
+}
+
+.driver-popover .driver-popover-progress-text {
+  /* text-base	 */
+  font-size: 1rem; /* 16px */
+  line-height: 1.5rem; /* 24px */
+}
+
+.driver-popover button {
+  /* text-sm */
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  text-shadow: none;
+}
+.driver-popover button:hover {
+  background-color: var(--fallback-b1, oklch(var(--b1) / 1));
+}
+
+.driver-popover .driver-popover-title,
+.driver-popover .driver-popover-description,
+.driver-popover .driver-popover-progress-text,
+.driver-popover button {
+  font-family: var(--custom-font-name), sans-serif;
+}
+
 /* 诗词作者名样式 */
 .custom-author-style {
   background-color: #c92e2e;
