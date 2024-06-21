@@ -52,7 +52,7 @@
 
 ## 特性
 
-- 使用完全离线的数据、字体，无需联网
+- 使用完全离线的数据，无需联网
 - 保持简洁、美观的设计风格
 - 使用 WXT + React + Tailwindcss + Daisyui 开发
 
@@ -70,7 +70,10 @@
 
 - [Firefox Addons](https://addons.mozilla.org/zh-CN/firefox/addon/%E5%87%A0%E6%9E%9D%E5%A4%8F/)（Firefox、Waterfox 等使用）
 
-> 注：若无法访问 Chrome Web Store 可在国内 Chrome Web Store 克隆站下载安装 [几枝夏 | Chrome扩展 - Crx搜搜](https://www.crxsoso.com/webstore/detail/aihpjpjndpdkbmdjghjglbmippnjlkcp)
+> 注：若无法访问 Chrome Web Store
+>
+> 可在国内 Chrome Web Store 克隆站下载安装：
+> [几枝夏 | Chrome扩展 - Crx搜搜](https://www.crxsoso.com/webstore/detail/aihpjpjndpdkbmdjghjglbmippnjlkcp)
 
 #### Releases 预构建下载：
 
@@ -87,7 +90,7 @@ bun install
 bun run zip:all
 ```
 
-构建成功后浏览器直接加载 .output 文件夹下对应浏览器的拓展文件为 “加载解压缩的拓展”。
+构建成功后浏览器直接加载 .output 文件夹下对应浏览器的拓展文件为 “加载解压缩的拓展”即可使用。
 
 ## 后续计划
 
