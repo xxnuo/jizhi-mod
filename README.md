@@ -45,7 +45,7 @@
 
 具有多种风格迥异的字体，支持自动切换明暗主题
 
-界面样式灵感来自 [unicar9/jizhi](https://github.com/unicar9/jizhi)，且并非模仿，完全重写。
+界面样式灵感来自 [unicar9/jizhi](https://github.com/unicar9/jizhi)，且并非简单模仿，而是完全重写。
 
 有空会持续更新新功能，目前只是基础 1.0 版本。
 
