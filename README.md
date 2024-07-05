@@ -85,13 +85,13 @@
 
 #### 本地构建
 
-> 依赖：Node.js、Bun(or pnpm)
+> 依赖：Node.js、pnpm
 
 ```bash
 git clone https://github.com/xxnuo/jizhi-mod.git
 cd jizhi-mod
-bun install
-bun run zip:all
+pnpm install
+pnpm run zip:all
 ```
 
 构建成功后浏览器直接加载 .output 文件夹下对应浏览器的拓展文件为 “加载解压缩的拓展”即可使用。

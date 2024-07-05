@@ -89,6 +89,7 @@ export default function App() {
     document.title = hasZh ? "新标签页" : "New Tab";
   }, []);
 
+  // 第一次使用的引导
   useEffect(() => {
     const storedFirstRun = localStorage.getItem("firstRun");
     if (!storedFirstRun || storedFirstRun === "1") {
@@ -137,17 +138,22 @@ export default function App() {
         // } as any
       }}
     >
+      {/* <div>
+        <img className="absolute left-0 top-0 transform scale-x-[-1] z-0 w-64" src="./2.png" />
+        <img className="absolute right-0 top-0 z-50 w-64" src="./2.png" />
+        
+      </div> */}
       <div className="min-h-screen flex items-center justify-center">
         <div className="justify-center text-center">
           <div className="justify-center item-center flex flex-col">
-            <p className="text-5xl mb-10 break-words whitespace-pre-wrap">
+            <p className="text-5xl mb-10 whitespace-pre-wrap">
               <a href={`https://www.baidu.com/s?wd=${poem.title.replace("\n", " ")}`} target="_blank">
                 {poem.title}
               </a>
             </p>
           </div>
           <div className="flex justify-center">
-            <p className="text-3xl break-words mr-4">
+            <p className="text-3xl mr-4">
               <a href={`https://www.baidu.com/s?wd=${poem.from} ${poem.who ? poem.who : ""}`} target="_blank">
                 「{poem.from}」
               </a>
