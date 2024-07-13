@@ -7,6 +7,7 @@
     "dev:firefox": "wxt -b firefox",
     "build": "wxt build",
     "build:firefox": "wxt build -b firefox",
+    "build:safari": "wxt build -b safari && xcrun /Applications/Xcode.app/Contents/Developer/usr/bin/safari-web-extension-converter --project-location .output/safari-xcode .output/safari-mv2",
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "zip:all": "wxt zip && wxt zip -b firefox",
