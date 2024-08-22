@@ -146,10 +146,26 @@ export default function App() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="justify-center text-center">
           <div className="justify-center item-center flex flex-col">
-            <p className="text-5xl mb-10 whitespace-pre-wrap">
+            {/* <p className="text-5xl mb-10 whitespace-pre-wrap">
               <a href={`https://www.baidu.com/s?wd=${poem.title.replace("\n", " ")}`} target="_blank">
                 {poem.title}
               </a>
+            </p> */}
+            <p
+              className="text-5xl mb-10 whitespace-pre-wrap cursor-pointer"
+              onClick={() => {
+                chrome.runtime.sendMessage({ action: "getVoice", text: poem.title }, (response) => {
+                  if (response.url) {
+                    // console.log("Audio URL:", response.url);
+                    const audio = new Audio(response.url);
+                    audio.play();
+                  } else {
+                    console.error("Error:", response.error);
+                  }
+                });
+              }}
+            >
+              {poem.title}
             </p>
           </div>
           <div className="flex justify-center">

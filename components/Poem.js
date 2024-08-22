@@ -17,13 +17,6 @@ import JSON_POEM from "sentences-bundle/sentences/i.json";
 //   },
 // ];
 
-// // 定义诗句对象的接口
-// export interface Poem {
-//   title: string;
-//   from: string;
-//   who?: string;
-// }
-
 /**
  * @typedef {Object} Poem
  * @property {string} title - 诗的标题
