@@ -4,7 +4,7 @@
 @import "./node_modules/@chinese-fonts/rzjkxzdmh/dist/nzgrKangxi/result.css";
 @import "./node_modules/@chinese-fonts/yfxy/dist/YuFanXinYu-Regular/result.css";
 @import "./node_modules/@chinese-fonts/mzxst/dist/MZPXorig/result.css";
-@import "./node_modules/@chinese-fonts/yozai/dist/Yozai-Regular/result.css";
+/* @import "./node_modules/@chinese-fonts/yozai/dist/Yozai-Regular/result.css"; */
 @import "./node_modules/@chinese-fonts/lxgwwenkai/dist/LXGWWenKai-Light/result.css";
 
 @tailwind base;
@@ -18,7 +18,7 @@
 
 /* 使用CSS变量来设置字体 */
 .custom-font {
-  font-family: var(--custom-font-name), sans-serif;
+  font-family: var(--custom-font-name), 楷体, serif;
 }
 
 /* 引导页样式 */

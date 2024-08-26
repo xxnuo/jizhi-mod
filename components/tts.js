@@ -44,7 +44,7 @@ function dateFormat() {
 async function getVoice(
   text,
   voiceName = "zh-CN-XiaoqiuNeural",
-  rate = -25,
+  rate = -23,
   pitch = 3,
   outputFormat = "audio-24khz-48kbitrate-mono-mp3",
   download = false
@@ -56,10 +56,10 @@ async function getVoice(
     expiredAt = decodedJwt.exp;
     const seconds = expiredAt - Date.now() / 1e3;
     clientId = uuid();
-    console.log("getEndpoint, expiredAt:" + seconds / 60 + "m left");
+    // console.log("getEndpoint, expiredAt:" + seconds / 60 + "m left");
   } else {
     const seconds = expiredAt - Date.now() / 1e3;
-    console.log("expiredAt:" + seconds / 60 + "m left");
+    // console.log("expiredAt:" + seconds / 60 + "m left");
   }
   const url = `https://${endpoint.r}.tts.speech.microsoft.com/cognitiveservices/v1`;
   const headers = {
@@ -87,7 +87,7 @@ async function getVoice(
 }
 
 function getSsml(text, voiceName, rate, pitch) {
-  return `<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" version="1.0" xml:lang="zh-CN"> <voice name="${voiceName}"> <mstts:express-as style="general" styledegree="1.0" role="default"> <prosody rate="${rate}%" pitch="${pitch}%" volume="50">${text}</prosody> </mstts:express-as> </voice> </speak>`;
+  return `<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" version="1.0" xml:lang="zh-CN"> <voice name="${voiceName}"> <mstts:express-as style="general" styledegree="1.0" role="default"> <prosody rate="${rate}%" pitch="${pitch}%" volume="100">${text}</prosody> </mstts:express-as> </voice> </speak>`;
 }
 
 async function hmacSha256(key, data) {

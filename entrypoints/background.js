@@ -17,7 +17,8 @@ export default defineBackground(() => {
           }
         })
         .then((blob) => {
-          console.log("Got voice:", blob);
+          // console.log("Got voice:", blob);
+          console.log("Got voice");
           const reader = new FileReader();
           reader.onloadend = () => {
             const dataUrl = reader.result;

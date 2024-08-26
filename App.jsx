@@ -7,10 +7,11 @@ import { IoMoonOutline as MoonIcon, IoSunnyOutline as SunIcon } from "react-icon
 import { BiFontFamily as FontIcon } from "react-icons/bi";
 
 import { driver } from "driver.js";
-import "./node_modules/driver.js/dist/driver.css";
+import "driver.js/dist/driver.css";
 
 import "animate.css";
 import "./style.css";
+import { browser } from "wxt/browser";
 
 export default function App() {
   const storedFontIndex = localStorage.getItem("fontIndex");
@@ -20,10 +21,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("fontIndex", JSON.stringify(fontIndex));
   }, [fontIndex]);
-
-  // 根据时间自动切换主题
-  // const timeNow = new Date().getHours();
-  // const [isDarkMode, setIsDarkMode] = useState(timeNow < 7 || timeNow > 19);
 
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -51,20 +48,12 @@ export default function App() {
 
   useEffect(() => {
     let newTitle = poem.title;
-    // console.log(newTitle);
     if (!/^[A-Za-z]/.test(newTitle[0])) {
-      // 处理中文原句，去除符号
       newTitle = newTitle.replace(/[^\u4E00-\u9FA5\t\n\r]/g, " ");
-      // 合并空格
       newTitle = newTitle.replace(/\s+/g, " ").trim();
-      // 格式化句子
-
       if (newTitle.length >= POEM_MAXLINELENGTH) {
         const lines = newTitle.split(/\s+/);
-        // console.log(lines);
-        // 偶数个句子则每两个句子拼接成一行，奇数个句子则每个句子单独一行
         const mod = lines.length % 2;
-        // console.log(mod);
         const result = [];
         if (mod === 0) {
           for (let i = 0; i < lines.length; i += 2) {
@@ -75,8 +64,6 @@ export default function App() {
             result.push(lines[i]);
           }
         }
-
-        // console.log(result);
         newTitle = result.join("\n");
       }
     }
@@ -89,10 +76,60 @@ export default function App() {
     document.title = hasZh ? "新标签页" : "New Tab";
   }, []);
 
-  // 第一次使用的引导
+  // 引导
   useEffect(() => {
+    const firstRunSteps = [
+      {
+        element: "#theme-toggle",
+        popover: {
+          title: "使用引导：切换主题",
+          description: "页面默认跟随系统主题，点击按钮临时切换主题。",
+          side: "top",
+        },
+      },
+      {
+        element: "#font-toggle",
+        popover: {
+          title: "使用引导：切换字体",
+          description: "点击按钮切换你喜欢的字体，有七种风格迥异的字体可供选择。",
+          side: "top",
+        },
+      },
+    ];
+    const update1VoiceSteps = [
+      {
+        element: "#poem-title-container",
+        popover: {
+          title: "新功能说明：诗朗诵",
+          description: "点击诗句，稍等片刻即可聆听朗诵。（初次使用该功能时请耐心等待加载）。",
+          side: "top",
+          align: "center",
+        },
+      },
+      {
+        element: "#poem-author-container",
+        popover: {
+          title: "新功能说明：查询详细信息",
+          description: "点击诗题，跳转搜索引擎查看这首诗词的详细信息。",
+          side: "top",
+          align: "center",
+        },
+      },
+    ];
+
+    const steps = [];
+
     const storedFirstRun = localStorage.getItem("firstRun");
     if (!storedFirstRun || storedFirstRun === "1") {
+      steps.push(...firstRunSteps);
+    }
+
+    const update1voice = localStorage.getItem("update1voice");
+    if (!update1voice || update1voice === "1") {
+      steps.push(...update1VoiceSteps);
+    }
+
+    if (steps.length > 0) {
       const driverObj = driver({
         popoverOffset: 10,
         showProgress: true,
@@ -103,31 +140,22 @@ export default function App() {
         onDestroyStarted: () => {
           if (!driverObj.hasNextStep() || confirm("使用引导仅显示一次，是否直接结束引导？")) {
             driverObj.destroy();
-            localStorage.setItem("firstRun", "0");
+            if (!storedFirstRun || storedFirstRun === "1") {
+              localStorage.setItem("firstRun", "0");
+            }
+            if (!update1voice || update1voice === "1") {
+              localStorage.setItem("update1voice", "0");
+            }
           }
         },
-        steps: [
-          {
-            element: "#theme-toggle",
-            popover: {
-              title: "使用引导：切换主题",
-              description: "页面默认跟随系统主题，点击按钮临时切换主题。",
-              side: "top",
-            },
-          },
-          {
-            element: "#font-toggle",
-            popover: {
-              title: "使用引导：切换字体",
-              description: "点击按钮切换你喜欢的字体，有七种风格迥异的字体可供选择。",
-              side: "top",
-            },
-          },
-        ],
+        steps: steps,
       });
+
       driverObj.drive();
     }
   }, []);
+
+  const [voiceData, setVoiceData] = useState(null);
 
   return (
     <div
@@ -135,40 +163,36 @@ export default function App() {
       className="custom-font animate__animated animate__fadeIn animate__faster"
       style={{
         "--custom-font-name": FONTNAME_LIST[fontIndex],
-        // } as any
       }}
     >
-      {/* <div>
-        <img className="absolute left-0 top-0 transform scale-x-[-1] z-0 w-64" src="./2.png" />
-        <img className="absolute right-0 top-0 z-50 w-64" src="./2.png" />
-        
-      </div> */}
       <div className="min-h-screen flex items-center justify-center">
         <div className="justify-center text-center">
           <div className="justify-center item-center flex flex-col">
-            {/* <p className="text-5xl mb-10 whitespace-pre-wrap">
-              <a href={`https://www.baidu.com/s?wd=${poem.title.replace("\n", " ")}`} target="_blank">
-                {poem.title}
-              </a>
-            </p> */}
             <p
+              id="poem-title-container"
               className="text-5xl mb-10 whitespace-pre-wrap cursor-pointer"
               onClick={() => {
-                chrome.runtime.sendMessage({ action: "getVoice", text: poem.title }, (response) => {
-                  if (response.url) {
-                    // console.log("Audio URL:", response.url);
-                    const audio = new Audio(response.url);
-                    audio.play();
-                  } else {
-                    console.error("Error:", response.error);
-                  }
-                });
+                if (!voiceData || voiceData === "") {
+                  browser.runtime.sendMessage({ action: "getVoice", text: poem.title }).then((response) => {
+                    if (response.url) {
+                      // console.log("Audio URL:", response.url);
+                      setVoiceData(response.url);
+                      const audio = new Audio(response.url);
+                      audio.play();
+                    } else {
+                      console.error("Error:", response.error);
+                    }
+                  });
+                } else {
+                  const audio = new Audio(voiceData);
+                  audio.play();
+                }
               }}
             >
               {poem.title}
             </p>
           </div>
-          <div className="flex justify-center">
+          <div id="poem-author-container" className="flex justify-center">
             <p className="text-3xl mr-4">
               <a href={`https://www.baidu.com/s?wd=${poem.from} ${poem.who ? poem.who : ""}`} target="_blank">
                 「{poem.from}」
