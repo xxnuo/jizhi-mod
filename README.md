@@ -51,6 +51,8 @@
 
 ## 预览
 
+![SafariPreview](preview/Safari.png)
+![FirefoxPreview](preview/Firefox.png)
 ![LightTheme](preview/light.png)
 ![DarkTheme](preview/dark.png)
 
@@ -81,7 +83,7 @@
 
 #### Releases 预构建下载：
 
-> 安装包太大，GitHub Releases 无法上传，请耐心等待后续更新网盘下载链接或自行本地构建。
+[Releases](https://github.com/xxnuo/jizhi-mod/releases)
 
 #### 本地构建
 
@@ -98,7 +100,8 @@ pnpm run zip:all
 
 ## 待办
 
-- [ ] 字体文件改为网络加载
+- [x] 朗诵功能
+- [ ] 字体文件改为网络加载 - 正在评估 CDN 方案
 - [ ] 添加自定义背景功能
 - [ ] 添加搜索框功能
 - [ ] 添加自定义字体功能
