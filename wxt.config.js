@@ -14,10 +14,11 @@ export default defineConfig({
     //     id: "jizhi-mod@unicar9-xxnuo.github",
     //   },
     // },
-    host_permissions: [
-      "https://dev.microsofttranslator.com/*",
-      "https://*.tts.speech.microsoft.com/*",
-      "https://*.api.speech.microsoft.com/*",
-    ],
+    // 不需要
+    // host_permissions: [
+    //   "https://dev.microsofttranslator.com/*",
+    //   "https://*.tts.speech.microsoft.com/*",
+    //   "https://*.api.speech.microsoft.com/*",
+    // ],
   },
 });

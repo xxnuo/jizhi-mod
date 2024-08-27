@@ -43,6 +43,7 @@ function dateFormat() {
 
 async function getVoice(
   text,
+  // yunxiao 多语言也不错
   voiceName = "zh-CN-XiaoqiuNeural",
   rate = -23,
   pitch = 3,
