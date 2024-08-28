@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@chinese-fonts/jhlst':
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@chinese-fonts/hldqjt':
         specifier: ^2.0.0
@@ -21,9 +25,6 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       '@chinese-fonts/yfxy':
-        specifier: ^2.0.0
-        version: 2.0.0
-      '@chinese-fonts/yozai':
         specifier: ^2.0.0
         version: 2.0.0
       '@chinese-fonts/ysfxt':
@@ -195,6 +196,9 @@ packages:
   '@chinese-fonts/hldqjt@2.0.0':
     resolution: {integrity: sha512-ABFm+MMbPS3wzN5OLqMGSqKACRFN3W3MDy4LdYPauqMKI6waJPcc5hKdsTl/e4XzB/hsNwdWCOb+4eRvIrBygA==}
 
+  '@chinese-fonts/jhlst@2.0.0':
+    resolution: {integrity: sha512-YaCxY3mL+42NtJucUUBKr7a8b7KLSj6ImJOslQPjpL/bPjQhkqe7V7EnoFTas3kMLve9cmcmNCYR/j71NDh6ag==}
+
   '@chinese-fonts/lxgwwenkai@2.0.0':
     resolution: {integrity: sha512-Mi7ErC0ikwHuInqmfnsRIz0BBIw4SrCVE3KAHzpfydplJr060ej7BYzHdGcAHK8yuNC76dZL0CK3QRSHCwzOVQ==}
 
@@ -206,9 +210,6 @@ packages:
 
   '@chinese-fonts/yfxy@2.0.0':
     resolution: {integrity: sha512-UPCxgOh6hKHdO8rbA4yY1pKSj3bM5kodyzmaqXdANdVPNK88iThygDgqNRnOOGBV2V+2/FH8Kv3n1m/AS/SEeg==}
-
-  '@chinese-fonts/yozai@2.0.0':
-    resolution: {integrity: sha512-vWcOTynerpM6yhH77R9gL/lTNhVDqNeOVMRpYEw9s2DHVejAJPAqhIITGL60NFCpeqTOY1mORAxjrzJtYMA4RQ==}
 
   '@chinese-fonts/ysfxt@2.0.0':
     resolution: {integrity: sha512-EJBcnLtVE3YcLRscx8PKcBub6PIjROLqxpZ8UB8SMsoQsL2Z5dbxXKCyJXusPWSHEvfaFw+uHWGWC6VO6V9Awg==}
@@ -2847,6 +2848,8 @@ snapshots:
 
   '@chinese-fonts/hldqjt@2.0.0': {}
 
+  '@chinese-fonts/jhlst@2.0.0': {}
+
   '@chinese-fonts/lxgwwenkai@2.0.0': {}
 
   '@chinese-fonts/mzxst@2.0.0': {}
@@ -2854,8 +2857,6 @@ snapshots:
   '@chinese-fonts/rzjkxzdmh@2.0.0': {}
 
   '@chinese-fonts/yfxy@2.0.0': {}
-
-  '@chinese-fonts/yozai@2.0.0': {}
 
   '@chinese-fonts/ysfxt@2.0.0': {}
 

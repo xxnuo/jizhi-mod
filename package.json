@@ -1,7 +1,7 @@
 {
   "name": "jizhi-mod",
   "description": "https://github.com/xxnuo/jizhi-mod",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "scripts": {
     "pre": "wxt prepare",
     "dev": "wxt",
@@ -19,8 +19,8 @@
     "@chinese-fonts/mzxst": "^2.0.0",
     "@chinese-fonts/rzjkxzdmh": "^2.0.0",
     "@chinese-fonts/yfxy": "^2.0.0",
-    "@chinese-fonts/yozai": "^2.0.0",
     "@chinese-fonts/ysfxt": "^2.0.0",
+    "@chinese-fonts/jhlst": "^2.0.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@types/react": "^18.3.4",
     "@types/react-dom": "^18.3.0",
