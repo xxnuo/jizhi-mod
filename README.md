@@ -43,28 +43,28 @@
 
 支持自定义新标签页的跨浏览器扩展，几枝夏将在新标签页上展示中国经典诗词。
 
-具有多种风格迥异的字体，支持自动切换明暗主题
+### 目前已完成的功能
 
-界面样式灵感来自 [unicar9/jizhi](https://github.com/unicar9/jizhi)，且并非简单模仿，而是完全重写。
+- 点击诗句自动朗读
+- 具有多种风格迥异的字体
+- 支持自动切换明暗主题
 
 有空会持续更新新功能，目前只是基础 1.0 版本。
 
 ## 预览
-
-![SafariPreview](preview/Safari.png)
-![FirefoxPreview](preview/Firefox.png)
 ![LightTheme](preview/light.png)
+<!-- https://i.imgur.com/qc5QtNM.png -->
 ![DarkTheme](preview/dark.png)
-
+<!-- https://i.imgur.com/Z8A47Rd.png -->
+![FirefoxPreview](preview/Firefox.png)
+<!-- https://i.imgur.com/fQgS52Q.png -->
+![SafariPreview](preview/Safari.png)
+<!-- https://i.imgur.com/ucGvozQ.png -->
 ## 特性
 
 - 使用完全离线的数据，无需联网
-- 保持设计风格：简洁美观第一，速度性能第一
+- 保持设计风格：简洁美观第一，速度性能第一（针对低功耗设备优化）
 - 使用 WXT + React + Tailwindcss + Daisyui 开发
-
-## 使用说明
-
-左下角的按钮可以切换主题、切换字体。
 
 ### 下载安装
 
@@ -101,13 +101,14 @@ pnpm run zip:all
 ## 待办
 
 - [x] 朗诵功能
-- [ ] 字体文件改为网络加载 - 正在评估 CDN 方案
-- [ ] 添加自定义背景功能
+- [ ] 美丽的视频动态背景功能 😁 [Working]
+- [ ] 字体文件改为网络加载 - 需要慷慨的 CDN 服务商 QaQ
+- [ ] 自定义背景功能
 - [ ] 添加搜索框功能
 - [ ] 添加自定义字体功能
 
 ## 鸣谢
 
-界面样式模仿了 [unicar9/jizhi](https://github.com/unicar9/jizhi)，感谢作者的优秀作品。
+界面样式模仿了 [unicar9/jizhi](https://github.com/unicar9/jizhi)（作者已不再维护），且并非简单模仿，而是完全重写。感谢作者的优秀作品。
 
 字体来自 [中文网字计划](https://chinese-font.netlify.app/)，有许多优秀的中文字体。
