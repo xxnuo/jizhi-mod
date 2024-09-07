@@ -7,14 +7,13 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@chinese-fonts/jhlst':
-        specifier: ^2.0.0
-        version: 2.0.0
     devDependencies:
       '@chinese-fonts/hldqjt':
         specifier: ^2.0.0
         version: 2.0.0
+      '@chinese-fonts/jhlst':
+        specifier: ^2.0.2
+        version: 2.0.2
       '@chinese-fonts/lxgwwenkai':
         specifier: ^2.0.0
         version: 2.0.0
@@ -196,8 +195,8 @@ packages:
   '@chinese-fonts/hldqjt@2.0.0':
     resolution: {integrity: sha512-ABFm+MMbPS3wzN5OLqMGSqKACRFN3W3MDy4LdYPauqMKI6waJPcc5hKdsTl/e4XzB/hsNwdWCOb+4eRvIrBygA==}
 
-  '@chinese-fonts/jhlst@2.0.0':
-    resolution: {integrity: sha512-YaCxY3mL+42NtJucUUBKr7a8b7KLSj6ImJOslQPjpL/bPjQhkqe7V7EnoFTas3kMLve9cmcmNCYR/j71NDh6ag==}
+  '@chinese-fonts/jhlst@2.0.2':
+    resolution: {integrity: sha512-IkwV9JU7XA1LMYLFob3aeejdlaT4GowHULdP3j9W9MJ4sVR16M84Jo0+HcEdFdFVngkh/4Csfhp9Kmh3nMNKQA==}
 
   '@chinese-fonts/lxgwwenkai@2.0.0':
     resolution: {integrity: sha512-Mi7ErC0ikwHuInqmfnsRIz0BBIw4SrCVE3KAHzpfydplJr060ej7BYzHdGcAHK8yuNC76dZL0CK3QRSHCwzOVQ==}
@@ -2848,7 +2847,7 @@ snapshots:
 
   '@chinese-fonts/hldqjt@2.0.0': {}
 
-  '@chinese-fonts/jhlst@2.0.0': {}
+  '@chinese-fonts/jhlst@2.0.2': {}
 
   '@chinese-fonts/lxgwwenkai@2.0.0': {}
 

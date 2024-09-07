@@ -9,7 +9,7 @@
 @import "./node_modules/@chinese-fonts/yfxy/dist/YuFanXinYu-Regular/result.css";
 @import "./node_modules/@chinese-fonts/mzxst/dist/MZPXorig/result.css";
 @import "./node_modules/@chinese-fonts/lxgwwenkai/dist/LXGWWenKai-Light/result.css";
-@import "./node_modules/@chinese-fonts/jhlst/dist/京華老宋体v1_007/result.css";
+@import "./node_modules/@chinese-fonts/jhlst/dist/京華老宋体v2_002/result.css";
 
 @tailwind base;
 @tailwind components;

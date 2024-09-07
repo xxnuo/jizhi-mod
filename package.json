@@ -15,12 +15,12 @@
   },
   "devDependencies": {
     "@chinese-fonts/hldqjt": "^2.0.0",
+    "@chinese-fonts/jhlst": "^2.0.2",
     "@chinese-fonts/lxgwwenkai": "^2.0.0",
     "@chinese-fonts/mzxst": "^2.0.0",
     "@chinese-fonts/rzjkxzdmh": "^2.0.0",
     "@chinese-fonts/yfxy": "^2.0.0",
     "@chinese-fonts/ysfxt": "^2.0.0",
-    "@chinese-fonts/jhlst": "^2.0.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@types/react": "^18.3.4",
     "@types/react-dom": "^18.3.0",
