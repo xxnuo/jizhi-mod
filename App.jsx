@@ -26,7 +26,12 @@ export default function App() {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDarkMode(mediaQuery.matches);
+    const storedDarkMode = localStorage.getItem("isDarkMode");
+    if (storedDarkMode) {
+      setIsDarkMode(JSON.parse(storedDarkMode));
+    } else {
+      setIsDarkMode(mediaQuery.matches);
+    }
 
     // const handleChange = (event: MediaQueryListEvent) => {
     const handleChange = (event) => {
@@ -222,7 +227,10 @@ export default function App() {
                 type="checkbox"
                 className="theme-controller"
                 checked={isDarkMode}
-                onChange={() => setIsDarkMode(!isDarkMode)}
+                onChange={() => {
+                  setIsDarkMode(!isDarkMode);
+                  localStorage.setItem("isDarkMode", !isDarkMode);
+                }}
               />
               <SunIcon className="swap-on fill-current w-7 h-7" />
               <MoonIcon className="swap-off fill-current w-7 h-7" />
