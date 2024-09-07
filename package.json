@@ -1,7 +1,7 @@
 {
   "name": "jizhi-mod",
   "description": "https://github.com/xxnuo/jizhi-mod",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "scripts": {
     "pre": "wxt prepare",
     "dev": "wxt",
