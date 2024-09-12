@@ -162,12 +162,25 @@ export default function App() {
 
   const [voiceData, setVoiceData] = useState(null);
   const audioRef = useRef(new Audio());
-  const play = () => {
-    if (voiceData) {
-      audioRef.current.src = voiceData;
+  
+  const playVoice = async () => {
+    if (!voiceData) {
+      try {
+        const response = await browser.runtime.sendMessage({ action: "getVoice", text: poem.title });
+        if (response.url) {
+          setVoiceData(response.url);
+          audioRef.current.src = response.url;
+          await audioRef.current.play();
+        } else {
+          console.error("错误:", response.error);
+        }
+      } catch (error) {
+        console.error("播放音频时出错:", error);
+      }
+    } else {
       audioRef.current.play();
     }
-  }
+  };
 
   return (
     <div
@@ -183,21 +196,7 @@ export default function App() {
             <p
               id="poem-title-container"
               className="text-5xl mb-10 whitespace-pre-wrap cursor-pointer"
-              onClick={() => {
-                if (!voiceData || voiceData === "") {
-                  browser.runtime.sendMessage({ action: "getVoice", text: poem.title }).then((response) => {
-                    if (response.url) {
-                      // console.log("Audio URL:", response.url);
-                      setVoiceData(response.url);
-                      play();
-                    } else {
-                      console.error("Error:", response.error);
-                    }
-                  });
-                } else {
-                  play();
-                }
-              }}
+              onClick={playVoice}
             >
               {poem.title}
             </p>
