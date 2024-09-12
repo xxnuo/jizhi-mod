@@ -209,9 +209,9 @@ export default function App() {
               </a>
             </p>
             {poem.who && (
-              <p className="flex align-items-center justify-center text-center text-2xl rounded-md pr-1 mr-1 custom-author-style">
+              <p className="flex align-items-center justify-center text-center text-2xl rounded-md px-2 py-0 custom-author-style">
                 <a
-                  className="pl-0.5 pr-1"
+                  className="leading-normal"
                   href={`https://www.baidu.com/s?wd=${poem.who ? poem.who : ""}`}
                   target="_blank"
                 >
