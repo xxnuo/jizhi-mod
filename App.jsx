@@ -2,7 +2,7 @@ import { DARK_THEME, FONTNAME_LIST, LIGHT_THEME, POEM_MAXLINELENGTH } from "./co
 import { getRandomPoem } from "./components/Poem";
 // import type { Poem } from "./components/Poem";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { IoMoonOutline as MoonIcon, IoSunnyOutline as SunIcon } from "react-icons/io5";
 import { BiFontFamily as FontIcon } from "react-icons/bi";
 
@@ -161,6 +161,13 @@ export default function App() {
   }, []);
 
   const [voiceData, setVoiceData] = useState(null);
+  const audioRef = useRef(new Audio());
+  const play = () => {
+    if (voiceData) {
+      audioRef.current.src = voiceData;
+      audioRef.current.play();
+    }
+  }
 
   return (
     <div
@@ -182,15 +189,13 @@ export default function App() {
                     if (response.url) {
                       // console.log("Audio URL:", response.url);
                       setVoiceData(response.url);
-                      const audio = new Audio(response.url);
-                      audio.play();
+                      play();
                     } else {
                       console.error("Error:", response.error);
                     }
                   });
                 } else {
-                  const audio = new Audio(voiceData);
-                  audio.play();
+                  play();
                 }
               }}
             >
