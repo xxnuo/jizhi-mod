@@ -10,7 +10,7 @@
   /></a>
   <a
     rel="noreferrer noopener" target="_blank" target="_blank"
-    href="https://chromewebstore.google.com/detail/%E5%87%A0%E6%9E%9D%E5%A4%8F/aihpjpjndpdkbmdjghjglbmippnjlkcp"
+    href="https://chromewebstore.google.com/detail/aihpjpjndpdkbmdjghjglbmippnjlkcp"
     ><img
       alt="Chrome Web Store"
       src="https://img.shields.io/badge/Chrome-141e24.svg?&style=for-the-badge&logo=google-chrome&logoColor=white"
