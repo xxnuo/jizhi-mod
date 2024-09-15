@@ -7,3 +7,4 @@ node_modules
 stats.html
 /components/fonts
 .DS_Store
+.env.submit
