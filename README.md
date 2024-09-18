@@ -20,6 +20,11 @@
       alt="Firefox Add-ons"
       src="https://img.shields.io/badge/Firefox-141e24.svg?&style=for-the-badge&logo=firefox-browser&logoColor=white"
   /></a>
+  <a rel="noreferrer noopener" target="_blank" href="https://microsoftedge.microsoft.com/addons/detail/nfkllnegbckcaplofnbhaiohkcdnlbfd"
+    ><img
+      alt="Edge"
+      src="https://img.shields.io/badge/Edge-141e24.svg?&style=for-the-badge&logo=google-chrome&logoColor=white"
+  /></a>
 </p>
 
 ## 介绍
@@ -64,9 +69,11 @@
 
 > Chrome、Firefox、Edge 等浏览器商店点击下面链接或标题的图标下载，也可以直接在浏览器拓展商店搜索 “浮生梦” 安装。
 
-- [Chrome Web Store](https://chrome.google.com/webstore/detail/aihpjpjndpdkbmdjghjglbmippnjlkcp)（Chrome、Edge、Opera、Brave、360、Safari 等使用）
+- [Chrome Web Store](https://chrome.google.com/webstore/detail/aihpjpjndpdkbmdjghjglbmippnjlkcp)
 
-- [Firefox Addons](https://addons.mozilla.org/en-US/firefox/addon/jizhi-mod/)（Firefox、Waterfox 等使用）
+- [Firefox Addons](https://addons.mozilla.org/en-US/firefox/addon/jizhi-mod/)
+
+- [Edge 加载项](https://microsoftedge.microsoft.com/addons/detail/nfkllnegbckcaplofnbhaiohkcdnlbfd)
 
 > 插件曾用名：几枝夏，现已更名为 “浮生梦”
 
