@@ -107,6 +107,10 @@ pnpm run zip:all
 - [ ] 添加搜索框功能
 - [ ] 添加自定义字体功能
 
+## 捐赠
+
+可以在这里给我买杯咖啡😊 [爱发电](https://afdian.com/a/xxnuo)
+
 ## 鸣谢
 
 界面样式模仿了 [unicar9/jizhi](https://github.com/unicar9/jizhi)（作者已不再维护），且并非简单模仿，而是完全重写。感谢作者的优秀作品。
