@@ -2,7 +2,7 @@ import { DARK_THEME, FONTNAME_LIST, LIGHT_THEME, POEM_MAXLINELENGTH } from "./co
 import { getRandomPoem } from "./components/Poem";
 // import type { Poem } from "./components/Poem";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { browser } from "wxt/browser";
 
 import { IoMoonOutline as MoonIcon, IoSunnyOutline as SunIcon } from "react-icons/io5";
@@ -18,6 +18,37 @@ import "animate.css";
 import "./style.css";
 
 export default function App() {
+  // 重构为主题
+  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  // 监听系统主题变化的回调
+  const mediaHandleChange = (event) => {
+    // console.log("mediaHandleChange", event.matches);
+    const storedTheme = localStorage.getItem("theme") || "sync";
+    if (storedTheme === "sync") {
+      document.documentElement.setAttribute("data-theme", event.matches ? DARK_THEME : LIGHT_THEME);
+    } else if (storedTheme === "light") {
+      document.documentElement.setAttribute("data-theme", LIGHT_THEME);
+    } else if (storedTheme === "dark") {
+      document.documentElement.setAttribute("data-theme", DARK_THEME);
+    }
+  };
+
+  // 初始化主题设置
+  useEffect(() => {
+    mediaQuery.addEventListener("change", mediaHandleChange);
+    return () => {
+      mediaQuery.removeEventListener("change", mediaHandleChange);
+    };
+  }, []);
+
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "sync");
+  // theme 值变化时，设置主题
+  useEffect(() => {
+    // console.log("theme", theme);
+    localStorage.setItem("theme", theme);
+    mediaHandleChange(mediaQuery);
+  }, [theme]);
+
   const storedFontIndex = localStorage.getItem("fontIndex");
   const initialFontIndex = storedFontIndex ? parseInt(storedFontIndex, 10) : 0;
   const [fontIndex, setFontIndex] = useState(initialFontIndex);
@@ -25,30 +56,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("fontIndex", JSON.stringify(fontIndex));
   }, [fontIndex]);
-
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  const setTheme = (isDark) => {
-    document.documentElement.setAttribute("data-theme", isDark ? DARK_THEME : LIGHT_THEME);
-    setIsDarkMode(isDark);
-    localStorage.setItem("isDarkMode", JSON.stringify(isDark));
-  };
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const storedDarkMode = localStorage.getItem("isDarkMode");
-    if (storedDarkMode !== null) {
-      setTheme(JSON.parse(storedDarkMode));
-    } else {
-      setTheme(mediaQuery.matches);
-    }
-
-    const handleChange = (event) => setTheme(event.matches);
-    mediaQuery.addEventListener("change", handleChange);
-
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
 
   const [poem, setPoem] = useState(getRandomPoem());
 
@@ -89,7 +96,7 @@ export default function App() {
         element: "#theme-toggle",
         popover: {
           title: "使用引导：切换主题",
-          description: "页面默认跟随系统主题，点击按钮临时切换主题。",
+          description: "点击按钮切换主题，当前为跟随系统主题。",
           side: "top",
         },
       },
@@ -205,12 +212,12 @@ export default function App() {
   return (
     <div
       id="app"
-      className="custom-font animate__animated animate__fadeIn animate__faster"
+      className="custom-font"
       style={{
         "--custom-font-name": FONTNAME_LIST[fontIndex],
       }}
     >
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center  animate__animated animate__fadeIn animate__faster">
         <div className="justify-center text-center">
           <div className="justify-center item-center flex flex-col">
             <p
@@ -244,27 +251,30 @@ export default function App() {
 
       <div className="fixed bottom-6 left-6 z-50 flex">
         {/* 主题切换按钮 */}
-        <div className="tooltip" data-tip="切换主题">
-          <div className="custom-settings-button-style">
-            <label id="theme-toggle" tabIndex={0} className="swap swap-rotate">
-              <input
-                type="checkbox"
-                className="theme-controller"
-                checked={isDarkMode}
-                onChange={() => {
-                  setTheme(!isDarkMode);
-                }}
-              />
-              <SyncIcon className="swap-on fill-current w-8 h-8" />
-              <MoonIcon className="swap-off fill-current w-8 h-8" />
-            </label>
+        <div
+          className="tooltip"
+          data-tip={`${theme === "sync" ? "系统主题" : theme === "dark" ? "深色主题" : "浅色主题"}`}
+        >
+          <div
+            id="theme-toggle"
+            className="custom-settings-button-style"
+            onClick={() => {
+              const themes = ["light", "dark", "sync"];
+              const nextTheme = themes[(themes.indexOf(theme) + 1) % themes.length];
+              setTheme(nextTheme);
+            }}
+          >
+            {theme === "light" && <SunIcon className="swap-on fill-current w-8 h-8" />}
+            {theme === "dark" && <MoonIcon className="swap-on fill-current w-8 h-8" />}
+            {theme === "sync" && <SyncIcon className="swap-on fill-current w-8 h-8" />}
           </div>
         </div>
+
         <div className="ml-4"></div>
         {/* 字体切换按钮 */}
         <div className="tooltip" data-tip="切换字体">
           <div id="font-toggle" className="custom-settings-button-style">
-            <label id="theme-toggle" className="swap">
+            <label className="swap">
               <input
                 type="checkbox"
                 onClick={() => {
@@ -280,7 +290,7 @@ export default function App() {
         {/* 静音按钮 */}
         <div className="tooltip" data-tip="静音">
           <div id="font-toggle" className="custom-settings-button-style">
-            <label id="theme-toggle" className="swap">
+            <label className="swap">
               <input type="checkbox" checked={isMuted} onChange={toggleMute} />
               <VolumeOffIcon className="swap-on fill-current w-8 h-8" />
               <VolumeOnIcon className="swap-off fill-current w-8 h-8" />
