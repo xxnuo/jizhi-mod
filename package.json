@@ -12,7 +12,9 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "zip:all": "wxt zip && wxt zip -b firefox && wxt zip -b edge",
-    "split": "cd ./assets/fonts && node ./split.mjs"
+    "split": "cd ./assets/fonts && node ./split.mjs",
+    "upload": "wxt submit --chrome-zip ./.output/jizhi-mod-$npm_package_version-chrome.zip --firefox-zip ./.output/jizhi-mod-$npm_package_version-firefox.zip --firefox-sources-zip ./.output/jizhi-mod-$npm_package_version-firefox-sources.zip --edge-zip ./.output/jizhi-mod-$npm_package_version-edge.zip",
+    "upload:pre":"wxt submit --dry-run --chrome-zip ./.output/jizhi-mod-$npm_package_version-chrome.zip --firefox-zip ./.output/jizhi-mod-$npm_package_version-firefox.zip --firefox-sources-zip ./.output/jizhi-mod-$npm_package_version-firefox-sources.zip --edge-zip ./.output/jizhi-mod-$npm_package_version-edge.zip"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
