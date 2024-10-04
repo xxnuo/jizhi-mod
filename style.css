@@ -1,0 +1,98 @@
+/* 废弃字体 */
+/* @import "./node_modules/@chinese-fonts/yozai/dist/Yozai-Regular/result.css"; */
+
+/* 字体列表定义在 ./components/Constants.ts */
+/* 黄令东齐伋体 */
+/* @import "./node_modules/@chinese-fonts/hldqjt/dist/qiji-fallback/result.css"; */
+/* 演示佛系体 */
+/* @import "./node_modules/@chinese-fonts/ysfxt/dist/Slidefu-Regular/result.css"; */
+/* 润植家康熙字典美化体 */
+/* @import "./node_modules/@chinese-fonts/rzjkxzdmh/dist/nzgrKangxi/result.css"; */
+/* 余繁新语 */
+/* @import "./node_modules/@chinese-fonts/yfxy/dist/YuFanXinYu-Regular/result.css"; */
+/* 目哉像素体 */
+/* @import "./node_modules/@chinese-fonts/mzxst/dist/MZPXorig/result.css"; */
+/* 霞鹜文楷 */
+/* @import "./node_modules/@chinese-fonts/lxgwwenkai/dist/LXGWWenKai-Light/result.css"; */
+/* 京華老宋体 */
+/* @import "./node_modules/@chinese-fonts/jhlst/dist/京華老宋体v2_002/result.css"; */
+
+@import "./assets/fonts/fonts.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 定义一个CSS变量来存储字体名称，默认使用楷体 */
+:root {
+  --custom-font-name: 楷体;
+}
+
+/* 使用CSS变量来设置字体 */
+.custom-font {
+  font-family: var(--custom-font-name), 楷体, serif;
+}
+
+/* 引导页样式 */
+
+.driver-popover,
+.driver-popover button {
+  /* 直接复制 daisyui 主题最终的样式颜色，跟随主题自动切换颜色 */
+  background-color: var(--fallback-b1, oklch(var(--b1) / 1));
+  color: var(--fallback-bc, oklch(var(--bc) / 1));
+}
+
+.driver-popover .driver-popover-title {
+  /* text-xl */
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.75rem; /* 28px */
+}
+.driver-popover .driver-popover-description {
+  /* text-lg */
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.75rem; /* 28px */
+}
+
+.driver-popover .driver-popover-progress-text {
+  /* text-base	 */
+  font-size: 1rem; /* 16px */
+  line-height: 1.5rem; /* 24px */
+}
+
+.driver-popover button {
+  /* text-sm */
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  text-shadow: none;
+}
+.driver-popover button:hover {
+  background-color: var(--fallback-b1, oklch(var(--b1) / 1));
+}
+
+.driver-popover .driver-popover-title,
+.driver-popover .driver-popover-description,
+.driver-popover .driver-popover-progress-text,
+.driver-popover button {
+  font-family: var(--custom-font-name), sans-serif;
+}
+
+/* 诗词作者名样式 */
+.custom-author-style {
+  background-color: #c92e2e;
+  color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .custom-author-style {
+    background-color: #a50a0a;
+    color: #fff;
+  }
+}
+
+.custom-settings-button-style {
+  opacity: 10%;
+}
+
+.custom-settings-button-style:hover {
+  opacity: 100%;
+}

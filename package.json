@@ -1,0 +1,39 @@
+{
+  "name": "jizhi-mod",
+  "description": "https://github.com/xxnuo/jizhi-mod",
+  "version": "1.3.0",
+  "scripts": {
+    "pre": "wxt prepare",
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "build:safari": "wxt build -b safari && xcrun /Applications/Xcode.app/Contents/Developer/usr/bin/safari-web-extension-converter --bundle-identifier com.github.xxnuo.jizhi-mod --project-location .output/safari-xcode .output/safari-mv2",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "zip:all": "wxt zip && wxt zip -b firefox && wxt zip -b edge",
+    "split": "cd ./assets/fonts && node ./split.mjs",
+    "upload": "wxt submit --chrome-zip ./.output/jizhi-mod-$npm_package_version-chrome.zip --firefox-zip ./.output/jizhi-mod-$npm_package_version-firefox.zip --firefox-sources-zip ./.output/jizhi-mod-$npm_package_version-firefox-sources.zip --edge-zip ./.output/jizhi-mod-$npm_package_version-edge.zip",
+    "upload:pre": "wxt submit --dry-run --chrome-zip ./.output/jizhi-mod-$npm_package_version-chrome.zip --firefox-zip ./.output/jizhi-mod-$npm_package_version-firefox.zip --firefox-sources-zip ./.output/jizhi-mod-$npm_package_version-firefox-sources.zip --edge-zip ./.output/jizhi-mod-$npm_package_version-edge.zip"
+  },
+  "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@wxt-dev/module-react": "^1.1.1",
+    "animate.css": "^4.1.1",
+    "autoprefixer": "^10.4.20",
+    "cn-font-split": "^5.2.2",
+    "daisyui": "^4.12.13",
+    "driver.js": "^1.3.1",
+    "postcss": "^8.4.47",
+    "prettier": "^3.3.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.3.0",
+    "sentences-bundle": "^1.0.393",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.3",
+    "wxt": "^0.19.11"
+  }
+}

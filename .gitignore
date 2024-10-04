@@ -1,0 +1,16 @@
+# 系统文件
+.DS_Store
+
+# 二进制输出目录
+.output
+/assets/fonts/.src
+
+# wxt 配置
+.wxt
+
+# 依赖
+node_modules
+
+# 环境变量和密码
+.env.submit
+/components/tts.js
