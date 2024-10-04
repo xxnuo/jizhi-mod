@@ -8,3 +8,5 @@ stats.html
 /components/tts.js
 .DS_Store
 .env.submit
+
+/assets/fonts/src
