@@ -1,0 +1,10 @@
+.output
+.wxt
+node_modules
+/test
+.output.zip
+/node_modules-pnpm
+stats.html
+/components/tts.js
+.DS_Store
+.env.submit
