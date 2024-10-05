@@ -1,6 +1,9 @@
 import { fontSplit } from "cn-font-split";
 import fs from "fs/promises";
 
+import * as OpenCC from "opencc-js";
+const OpenCCConverter = OpenCC.Converter({ from: "cn", to: "t" });
+
 // 包含需要用到的所有字符的文件们
 const textSrc = [
   "../../node_modules/sentences-bundle/sentences/i.json",
@@ -20,6 +23,9 @@ async function main() {
   }
 
   console.log(`文本长度: ${text.length}`);
+
+  // 添加繁体字
+  text += OpenCCConverter(text);
 
   // 生成字符集
   const charset = [...new Set(text)].map((char) => char.charCodeAt(0));

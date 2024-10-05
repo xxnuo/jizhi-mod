@@ -4,8 +4,9 @@ import { defineConfig } from "wxt";
 export default defineConfig({
   modules: ["@wxt-dev/module-react"],
   vite: () => ({
-    // plugins: [
-    // ],
+    // optimizeDeps: {
+    //   exclude: ["wasm-opencc"],
+    // },
   }),
   manifest: {
     author: "xxnuo",

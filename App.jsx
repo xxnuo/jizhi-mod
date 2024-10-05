@@ -17,6 +17,9 @@ import "driver.js/dist/driver.css";
 import "animate.css";
 import "./style.css";
 
+import * as OpenCC from "opencc-js";
+const OpenCCConverter = OpenCC.Converter({ from: "cn", to: "t" });
+
 export default function App() {
   // 重构为主题
   const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -58,6 +61,7 @@ export default function App() {
   }, [fontIndex]);
 
   const [poem, setPoem] = useState(getRandomPoem());
+  const [convertedTitle, setConvertedTitle] = useState("");
 
   useEffect(() => {
     let newTitle = poem.title;
@@ -80,6 +84,9 @@ export default function App() {
         newTitle = result.join("\n");
       }
     }
+
+    // 使用 opencc 转换标题
+    setConvertedTitle(OpenCCConverter(newTitle));
 
     setPoem({ ...poem, title: newTitle });
   }, []);
@@ -225,7 +232,7 @@ export default function App() {
               className="text-5xl mb-10 whitespace-pre-wrap cursor-pointer"
               onClick={playVoice}
             >
-              {poem.title}
+              {convertedTitle || poem.title}
             </p>
           </div>
           <div id="poem-author-container" className="flex justify-center">
