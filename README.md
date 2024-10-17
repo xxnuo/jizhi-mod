@@ -108,6 +108,7 @@ v1.0.8 现在会保存颜色偏好了
 
 ## 鸣谢
 
-界面样式模仿了 [unicar9/jizhi](https://github.com/unicar9/jizhi)（作者已不再维护），且并非简单模仿，而是完全重写。感谢作者的优秀作品。
-
 字体来自 [中文网字计划](https://chinese-font.netlify.app/)，有许多优秀的中文字体。
+
+灵感来自 [unicar9/jizhi](https://github.com/unicar9/jizhi)（作者已不再维护）
+
