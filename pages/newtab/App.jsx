@@ -1,6 +1,6 @@
 import { DARK_THEME, FONTNAME_LIST, LIGHT_THEME, POEM_MAXLINELENGTH } from "../components/constants";
 import { getRandomPoem } from "../components/poems";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { browser } from "wxt/browser";
 import { IoMoonOutline as MoonIcon, IoSunnyOutline as SunIcon } from "react-icons/io5";
 import { MdTimelapse as SyncIcon } from "react-icons/md";
@@ -12,33 +12,33 @@ import "animate.css";
 import "./App.css";
 
 export default function App() {
-  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "sync");
-  const [fontIndex, setFontIndex] = useState(parseInt(localStorage.getItem("fontIndex") || "0", 10));
-  const [poem, setPoem] = useState(getRandomPoem());
+  const mediaQuery = useMemo(() => window.matchMedia("(prefers-color-scheme: dark)"), []);
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "sync");
+  const [fontIndex, setFontIndex] = useState(() => parseInt(localStorage.getItem("fontIndex") || "0", 10));
+  const [poem, setPoem] = useState(() => getRandomPoem());
   const [isAnimating, setIsAnimating] = useState(true);
   const [voiceData, setVoiceData] = useState(null);
-  const [isMuted, setIsMuted] = useState(JSON.parse(localStorage.getItem("isMuted") || "false"));
+  const [isMuted, setIsMuted] = useState(() => JSON.parse(localStorage.getItem("isMuted") || "false"));
   const audioRef = useRef(new Audio());
 
-  const mediaHandleChange = (event) => {
+  const mediaHandleChange = useCallback((event) => {
     const storedTheme = localStorage.getItem("theme") || "sync";
     if (storedTheme === "sync") {
       document.documentElement.setAttribute("data-theme", event.matches ? DARK_THEME : LIGHT_THEME);
     } else {
       document.documentElement.setAttribute("data-theme", storedTheme === "dark" ? DARK_THEME : LIGHT_THEME);
     }
-  };
+  }, []);
 
   useEffect(() => {
     mediaQuery.addEventListener("change", mediaHandleChange);
     return () => mediaQuery.removeEventListener("change", mediaHandleChange);
-  }, []);
+  }, [mediaQuery, mediaHandleChange]);
 
   useEffect(() => {
     localStorage.setItem("theme", theme);
     mediaHandleChange(mediaQuery);
-  }, [theme]);
+  }, [theme, mediaHandleChange, mediaQuery]);
 
   useEffect(() => {
     localStorage.setItem("fontIndex", fontIndex.toString());
@@ -63,11 +63,11 @@ export default function App() {
         newTitle = result.join("\n");
       }
     }
-    setPoem({ ...poem, title: newTitle });
+    setPoem((prevPoem) => ({ ...prevPoem, title: newTitle }));
     setIsAnimating(true);
     const timer = setTimeout(() => setIsAnimating(false), 1000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [poem.title]);
 
   useEffect(() => {
     document.title = navigator.languages.includes("zh") ? "新标签页" : "New Tab";
@@ -143,7 +143,7 @@ export default function App() {
     localStorage.setItem("isMuted", JSON.stringify(isMuted));
   }, [isMuted]);
 
-  const playVoice = async () => {
+  const playVoice = useCallback(async () => {
     if (isMuted) return;
 
     try {
@@ -162,9 +162,17 @@ export default function App() {
       console.error("播放音频时出错:", error.message);
       // 这里可以添加用户友好的错误提示，比如使用 toast 通知
     }
-  };
+  }, [isMuted, poem.title, voiceData]);
 
-  const toggleMute = () => setIsMuted((prevMuted) => !prevMuted);
+  const toggleMute = useCallback(() => setIsMuted((prevMuted) => !prevMuted), []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prevTheme) => ["light", "dark", "sync"][(["light", "dark", "sync"].indexOf(prevTheme) + 1) % 3]);
+  }, []);
+
+  const toggleFont = useCallback(() => {
+    setFontIndex((prevIndex) => (prevIndex + 1) % FONTNAME_LIST.length);
+  }, []);
 
   return (
     <div id="app" className="custom-font" style={{ "--custom-font-name": FONTNAME_LIST[fontIndex] }}>
@@ -183,13 +191,13 @@ export default function App() {
           </div>
           <div id="poem-author-container" className="flex justify-center">
             <p className="text-3xl mr-4 transition-all duration-300 hover:text-opacity-80">
-              <a href={`https://www.baidu.com/s?wd=${poem.from} ${poem.who || ""}`} target="_blank">
+              <a href={`https://www.baidu.com/s?wd=${poem.from} ${poem.who || ""}`} target="_blank" rel="noopener noreferrer">
                 「{poem.from}」
               </a>
             </p>
             {poem.who && (
               <p className="flex align-items-center justify-center text-center text-2xl rounded-md px-2 py-0 custom-author-style transition-all duration-300 hover:opacity-80">
-                <a className="leading-normal" href={`https://www.baidu.com/s?wd=${poem.who}`} target="_blank">
+                <a className="leading-normal" href={`https://www.baidu.com/s?wd=${poem.who}`} target="_blank" rel="noopener noreferrer">
                   {poem.who}
                 </a>
               </p>
@@ -206,7 +214,7 @@ export default function App() {
           <div
             id="theme-toggle"
             className="custom-settings-button-style transition-all duration-300 hover:scale-110"
-            onClick={() => setTheme(["light", "dark", "sync"][(["light", "dark", "sync"].indexOf(theme) + 1) % 3])}
+            onClick={toggleTheme}
           >
             {theme === "light" && <SunIcon className="swap-on fill-current w-8 h-8" />}
             {theme === "dark" && <MoonIcon className="swap-on fill-current w-8 h-8" />}
@@ -218,7 +226,7 @@ export default function App() {
         <div className="tooltip" data-tip="切换字体">
           <div id="font-toggle" className="custom-settings-button-style transition-all duration-300 hover:scale-110">
             <label className="swap">
-              <input type="checkbox" onClick={() => setFontIndex((fontIndex + 1) % FONTNAME_LIST.length)} />
+              <input type="checkbox" onClick={toggleFont} />
               <FontIcon className="swap-on fill-current w-8 h-8" />
               <FontIcon className="swap-off fill-current w-8 h-8" />
             </label>
