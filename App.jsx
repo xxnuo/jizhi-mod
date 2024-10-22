@@ -58,6 +58,7 @@ export default function App() {
   }, [fontIndex]);
 
   const [poem, setPoem] = useState(getRandomPoem());
+  const [isAnimating, setIsAnimating] = useState(true);
 
   useEffect(() => {
     let newTitle = poem.title;
@@ -82,6 +83,9 @@ export default function App() {
     }
 
     setPoem({ ...poem, title: newTitle });
+    setIsAnimating(true);
+    const timer = setTimeout(() => setIsAnimating(false), 1000); // 动画持续时间
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -217,25 +221,25 @@ export default function App() {
         "--custom-font-name": FONTNAME_LIST[fontIndex],
       }}
     >
-      <div className="min-h-screen flex items-center justify-center  animate__animated animate__fadeIn animate__faster">
-        <div className="justify-center text-center">
+      <div className="min-h-screen flex items-center justify-center">
+        <div className={`justify-center text-center ${isAnimating ? 'animate__animated animate__fadeIn animate__faster' : ''}`}>
           <div className="justify-center item-center flex flex-col">
             <p
               id="poem-title-container"
-              className="text-5xl mb-10 whitespace-pre-wrap cursor-pointer"
+              className="text-5xl mb-10 whitespace-pre-wrap cursor-pointer transition-all duration-300 hover:scale-105"
               onClick={playVoice}
             >
               {poem.title}
             </p>
           </div>
           <div id="poem-author-container" className="flex justify-center">
-            <p className="text-3xl mr-4">
+            <p className="text-3xl mr-4 transition-all duration-300 hover:text-opacity-80">
               <a href={`https://www.baidu.com/s?wd=${poem.from} ${poem.who ? poem.who : ""}`} target="_blank">
                 「{poem.from}」
               </a>
             </p>
             {poem.who && (
-              <p className="flex align-items-center justify-center text-center text-2xl rounded-md px-2 py-0 custom-author-style">
+              <p className="flex align-items-center justify-center text-center text-2xl rounded-md px-2 py-0 custom-author-style transition-all duration-300 hover:opacity-80">
                 <a
                   className="leading-normal"
                   href={`https://www.baidu.com/s?wd=${poem.who ? poem.who : ""}`}
@@ -257,7 +261,7 @@ export default function App() {
         >
           <div
             id="theme-toggle"
-            className="custom-settings-button-style"
+            className="custom-settings-button-style transition-all duration-300 hover:scale-110"
             onClick={() => {
               const themes = ["light", "dark", "sync"];
               const nextTheme = themes[(themes.indexOf(theme) + 1) % themes.length];
@@ -273,7 +277,7 @@ export default function App() {
         <div className="ml-4"></div>
         {/* 字体切换按钮 */}
         <div className="tooltip" data-tip="切换字体">
-          <div id="font-toggle" className="custom-settings-button-style">
+          <div id="font-toggle" className="custom-settings-button-style transition-all duration-300 hover:scale-110">
             <label className="swap">
               <input
                 type="checkbox"
@@ -289,7 +293,7 @@ export default function App() {
         <div className="ml-4"></div>
         {/* 静音按钮 */}
         <div className="tooltip" data-tip="静音">
-          <div id="font-toggle" className="custom-settings-button-style">
+          <div id="font-toggle" className="custom-settings-button-style transition-all duration-300 hover:scale-110">
             <label className="swap">
               <input type="checkbox" checked={isMuted} onChange={toggleMute} />
               <VolumeOffIcon className="swap-on fill-current w-8 h-8" />

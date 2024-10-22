@@ -1,22 +1,3 @@
-/* 废弃字体 */
-/* @import "./node_modules/@chinese-fonts/yozai/dist/Yozai-Regular/result.css"; */
-
-/* 字体列表定义在 ./components/Constants.ts */
-/* 黄令东齐伋体 */
-/* @import "./node_modules/@chinese-fonts/hldqjt/dist/qiji-fallback/result.css"; */
-/* 演示佛系体 */
-/* @import "./node_modules/@chinese-fonts/ysfxt/dist/Slidefu-Regular/result.css"; */
-/* 润植家康熙字典美化体 */
-/* @import "./node_modules/@chinese-fonts/rzjkxzdmh/dist/nzgrKangxi/result.css"; */
-/* 余繁新语 */
-/* @import "./node_modules/@chinese-fonts/yfxy/dist/YuFanXinYu-Regular/result.css"; */
-/* 目哉像素体 */
-/* @import "./node_modules/@chinese-fonts/mzxst/dist/MZPXorig/result.css"; */
-/* 霞鹜文楷 */
-/* @import "./node_modules/@chinese-fonts/lxgwwenkai/dist/LXGWWenKai-Light/result.css"; */
-/* 京華老宋体 */
-/* @import "./node_modules/@chinese-fonts/jhlst/dist/京華老宋体v2_002/result.css"; */
-
 @import "./assets/fonts/fonts.css";
 
 @tailwind base;

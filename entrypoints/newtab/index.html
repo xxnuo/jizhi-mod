@@ -1,13 +1,21 @@
 <!doctype html>
-<html>
+<html data-theme="">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>浮生梦</title>
+    <script>
+      const storedTheme = localStorage.getItem("theme") || "sync";
+      if (storedTheme === "sync") {
+        const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+        document.documentElement.setAttribute("data-theme", prefersDarkScheme.matches ? "dark" : "light");
+      } else {
+        document.documentElement.setAttribute("data-theme", storedTheme);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <!-- <script type="module" src="../../components/fastTheme.js"></script> -->
     <script type="module" src="../../Layout.jsx"></script>
   </body>
 </html>
