@@ -1,5 +1,5 @@
-import { DARK_THEME, FONTNAME_LIST, LIGHT_THEME, POEM_MAXLINELENGTH } from "../components/constants";
-import { getRandomPoem } from "../components/poems";
+import { DARK_THEME, FONTNAME_LIST, LIGHT_THEME, POEM_MAXLINELENGTH } from "../../services/constants";
+import { getRandomPoem } from "../../services/poems";
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { browser } from "wxt/browser";
 import { IoMoonOutline as MoonIcon, IoSunnyOutline as SunIcon } from "react-icons/io5";
