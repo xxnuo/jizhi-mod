@@ -14,7 +14,7 @@ import "./App.css";
 export default function App() {
   const mediaQuery = useMemo(() => window.matchMedia("(prefers-color-scheme: dark)"), []);
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "sync");
-  const [fontIndex, setFontIndex] = useState(() => parseInt(localStorage.getItem("fontIndex") || "0", 10));
+  const [fontIndex, setFontIndex] = useState(() => Number.parseInt(localStorage.getItem("fontIndex") || "0", 10));
   const [poem, setPoem] = useState(() => getRandomPoem());
   const [isAnimating, setIsAnimating] = useState(true);
   const [voiceData, setVoiceData] = useState(null);
@@ -56,7 +56,14 @@ export default function App() {
         const result =
           lines.length % 2 === 0
             ? lines.reduce(
-                (acc, line, i) => (i % 2 === 0 ? [...acc, line] : [...acc.slice(0, -1), `${acc.slice(-1)[0]} ${line}`]),
+                (acc, line, i) => {
+                  if (i % 2 === 0) {
+                    acc.push(line);
+                  } else {
+                    acc[acc.length - 1] = `${acc[acc.length - 1]} ${line}`;
+                  }
+                  return acc;
+                },
                 []
               )
             : lines;
@@ -181,13 +188,15 @@ export default function App() {
           className={`justify-center text-center ${isAnimating ? "animate__animated animate__fadeIn animate__faster" : ""}`}
         >
           <div className="justify-center item-center flex flex-col">
-            <p
+            <button
               id="poem-title-container"
               className="text-5xl mb-10 whitespace-pre-wrap cursor-pointer transition-all duration-300 hover:scale-105"
               onClick={playVoice}
+              onKeyDown={(e) => e.key === 'Enter' && playVoice()}
+              type="button"
             >
               {poem.title}
-            </p>
+            </button>
           </div>
           <div id="poem-author-container" className="flex justify-center">
             <p className="text-3xl mr-4 transition-all duration-300 hover:text-opacity-80">
@@ -211,18 +220,19 @@ export default function App() {
           className="tooltip"
           data-tip={`${theme === "sync" ? "系统主题" : theme === "dark" ? "深色主题" : "浅色主题"}`}
         >
-          <div
+          <button
             id="theme-toggle"
             className="custom-settings-button-style transition-all duration-300 hover:scale-110"
             onClick={toggleTheme}
+            type="button"
           >
             {theme === "light" && <SunIcon className="swap-on fill-current w-8 h-8" />}
             {theme === "dark" && <MoonIcon className="swap-on fill-current w-8 h-8" />}
             {theme === "sync" && <SyncIcon className="swap-on fill-current w-8 h-8" />}
-          </div>
+          </button>
         </div>
 
-        <div className="ml-4"></div>
+        <div className="ml-4" />
         <div className="tooltip" data-tip="切换字体">
           <div id="font-toggle" className="custom-settings-button-style transition-all duration-300 hover:scale-110">
             <label className="swap">
@@ -232,9 +242,9 @@ export default function App() {
             </label>
           </div>
         </div>
-        <div className="ml-4"></div>
+        <div className="ml-4" />
         <div className="tooltip" data-tip="静音">
-          <div id="font-toggle" className="custom-settings-button-style transition-all duration-300 hover:scale-110">
+          <div id="mute-toggle" className="custom-settings-button-style transition-all duration-300 hover:scale-110">
             <label className="swap">
               <input type="checkbox" checked={isMuted} onChange={toggleMute} />
               <VolumeOffIcon className="swap-on fill-current w-8 h-8" />
