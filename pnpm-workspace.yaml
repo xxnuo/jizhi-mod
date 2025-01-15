@@ -1,0 +1,6 @@
+allowBuilds:
+  cn-font-split: true
+  koffi: true
+  protobufjs: true
+minimumReleaseAgeExclude:
+  - daisyui@5.7.19
