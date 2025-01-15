@@ -1,48 +1,23 @@
-import { DARK_THEME, FONTNAME_LIST, LIGHT_THEME, POEM_MAXLINELENGTH } from "../../services/constants";
-import { getRandomPoem } from "../../services/poems";
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { browser } from "wxt/browser";
-import { IoMoonOutline as MoonIcon, IoSunnyOutline as SunIcon } from "react-icons/io5";
-import { MdTimelapse as SyncIcon } from "react-icons/md";
-import { BiFontFamily as FontIcon } from "react-icons/bi";
-import { IoVolumeHighOutline as VolumeOnIcon, IoVolumeMuteOutline as VolumeOffIcon } from "react-icons/io5";
-import { driver } from "driver.js";
-import "driver.js/dist/driver.css";
+import { POEM_MAXLINELENGTH } from "./services/constants";
+import { getRandomPoem } from "./services/poems";
+import { useState, useEffect } from "react";
 import "animate.css";
 import "./App.css";
+import PoemDisplay from "./components/PoemDisplay";
+import SettingsPanel from "./components/SettingsPanel";
+import { useTheme } from "./hooks/useTheme";
+import { useFont } from "./hooks/useFont";
+import { useVoice } from "./hooks/useVoice";
+import { useGuide } from "./hooks/useGuide";
 
 export default function App() {
-  const mediaQuery = useMemo(() => window.matchMedia("(prefers-color-scheme: dark)"), []);
-  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "sync");
-  const [fontIndex, setFontIndex] = useState(() => Number.parseInt(localStorage.getItem("fontIndex") || "0", 10));
+  const { theme, toggleTheme } = useTheme();
+  const { currentFont, toggleFont } = useFont();
+  const { isMuted, toggleMute, playVoice } = useVoice();
   const [poem, setPoem] = useState(() => getRandomPoem());
   const [isAnimating, setIsAnimating] = useState(true);
-  const [voiceData, setVoiceData] = useState(null);
-  const [isMuted, setIsMuted] = useState(() => JSON.parse(localStorage.getItem("isMuted") || "false"));
-  const audioRef = useRef(new Audio());
 
-  const mediaHandleChange = useCallback((event) => {
-    const storedTheme = localStorage.getItem("theme") || "sync";
-    if (storedTheme === "sync") {
-      document.documentElement.setAttribute("data-theme", event.matches ? DARK_THEME : LIGHT_THEME);
-    } else {
-      document.documentElement.setAttribute("data-theme", storedTheme === "dark" ? DARK_THEME : LIGHT_THEME);
-    }
-  }, []);
-
-  useEffect(() => {
-    mediaQuery.addEventListener("change", mediaHandleChange);
-    return () => mediaQuery.removeEventListener("change", mediaHandleChange);
-  }, [mediaQuery, mediaHandleChange]);
-
-  useEffect(() => {
-    localStorage.setItem("theme", theme);
-    mediaHandleChange(mediaQuery);
-  }, [theme, mediaHandleChange, mediaQuery]);
-
-  useEffect(() => {
-    localStorage.setItem("fontIndex", fontIndex.toString());
-  }, [fontIndex]);
+  useGuide();
 
   useEffect(() => {
     let newTitle = poem.title;
@@ -76,183 +51,23 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [poem.title]);
 
-  useEffect(() => {
-    document.title = navigator.languages.includes("zh") ? "新标签页" : "New Tab";
-  }, []);
-
-  useEffect(() => {
-    const steps = [];
-    if (localStorage.getItem("firstRun") !== "0") {
-      steps.push(
-        {
-          element: "#theme-toggle",
-          popover: {
-            title: "使用引导：切换主题",
-            description: "点击按钮切换主题，当前为跟随系统主题。",
-            side: "top",
-          },
-        },
-        {
-          element: "#font-toggle",
-          popover: {
-            title: "使用引导：切换字体",
-            description: "点击按钮切换你喜欢的字体，有七种风格迥异的字体可供选择。",
-            side: "top",
-          },
-        }
-      );
-    }
-    if (localStorage.getItem("update1voice") !== "0") {
-      steps.push(
-        {
-          element: "#poem-title-container",
-          popover: {
-            title: "新功能说明：诗朗诵",
-            description: "点击诗句，稍等片刻即可聆听朗诵。（初次使用该功能时请耐心等待加载）。",
-            side: "top",
-            align: "center",
-          },
-        },
-        {
-          element: "#poem-author-container",
-          popover: {
-            title: "新功能说明：查询详细信息",
-            description: "点击诗题，跳转搜索引擎查看这首诗词的详细信息。",
-            side: "top",
-            align: "center",
-          },
-        }
-      );
-    }
-    if (steps.length > 0) {
-      const driverObj = driver({
-        popoverOffset: 10,
-        showProgress: true,
-        progressText: "第{{current}}条，共{{total}}条",
-        nextBtnText: "继续 →",
-        prevBtnText: "← 上一条",
-        doneBtnText: "完成引导",
-        onDestroyStarted: () => {
-          if (!driverObj.hasNextStep() || confirm("使用引导仅显示一次，是否直接结束引导？")) {
-            driverObj.destroy();
-            localStorage.setItem("firstRun", "0");
-            localStorage.setItem("update1voice", "0");
-          }
-        },
-        steps: steps,
-      });
-      driverObj.drive();
-    }
-  }, []);
-
-  useEffect(() => {
-    audioRef.current.muted = isMuted;
-    localStorage.setItem("isMuted", JSON.stringify(isMuted));
-  }, [isMuted]);
-
-  const playVoice = useCallback(async () => {
-    if (isMuted) return;
-
-    try {
-      if (!voiceData) {
-        const response = await browser.runtime.sendMessage({ action: "getVoice", text: poem.title });
-        if (!response.url) throw new Error(response.error || "获取语音数据失败");
-
-        setVoiceData(response.url);
-        audioRef.current.src = response.url;
-      } else {
-        audioRef.current.currentTime = 0;
-      }
-
-      await audioRef.current.play();
-    } catch (error) {
-      console.error("播放音频时出错:", error.message);
-      // 这里可以添加用户友好的错误提示，比如使用 toast 通知
-    }
-  }, [isMuted, poem.title, voiceData]);
-
-  const toggleMute = useCallback(() => setIsMuted((prevMuted) => !prevMuted), []);
-
-  const toggleTheme = useCallback(() => {
-    setTheme((prevTheme) => ["light", "dark", "sync"][(["light", "dark", "sync"].indexOf(prevTheme) + 1) % 3]);
-  }, []);
-
-  const toggleFont = useCallback(() => {
-    setFontIndex((prevIndex) => (prevIndex + 1) % FONTNAME_LIST.length);
-  }, []);
+  const handleTitleClick = () => {
+    playVoice(poem.title);
+  };
 
   return (
-    <div id="app" className="custom-font" style={{ "--custom-font-name": FONTNAME_LIST[fontIndex] }}>
+    <div id="app" className="custom-font" style={{ "--custom-font-name": currentFont }}>
       <div className="min-h-screen flex items-center justify-center">
-        <div
-          className={`justify-center text-center ${isAnimating ? "animate__animated animate__fadeIn animate__faster" : ""}`}
-        >
-          <div className="justify-center item-center flex flex-col">
-            <button
-              id="poem-title-container"
-              className="text-5xl mb-10 whitespace-pre-wrap cursor-pointer transition-all duration-300 hover:scale-105"
-              onClick={playVoice}
-              onKeyDown={(e) => e.key === 'Enter' && playVoice()}
-              type="button"
-            >
-              {poem.title}
-            </button>
-          </div>
-          <div id="poem-author-container" className="flex justify-center">
-            <p className="text-3xl mr-4 transition-all duration-300 hover:text-opacity-80">
-              <a href={`https://www.baidu.com/s?wd=${poem.from} ${poem.who || ""}`} target="_blank" rel="noopener noreferrer">
-                「{poem.from}」
-              </a>
-            </p>
-            {poem.who && (
-              <p className="flex align-items-center justify-center text-center text-2xl rounded-md px-2 py-0 custom-author-style transition-all duration-300 hover:opacity-80">
-                <a className="leading-normal" href={`https://www.baidu.com/s?wd=${poem.who}`} target="_blank" rel="noopener noreferrer">
-                  {poem.who}
-                </a>
-              </p>
-            )}
-          </div>
-        </div>
+        <PoemDisplay poem={poem} isAnimating={isAnimating} onTitleClick={handleTitleClick} />
       </div>
 
-      <div className="fixed bottom-6 left-6 z-50 flex">
-        <div
-          className="tooltip"
-          data-tip={`${theme === "sync" ? "系统主题" : theme === "dark" ? "深色主题" : "浅色主题"}`}
-        >
-          <button
-            id="theme-toggle"
-            className="custom-settings-button-style transition-all duration-300 hover:scale-110"
-            onClick={toggleTheme}
-            type="button"
-          >
-            {theme === "light" && <SunIcon className="swap-on fill-current w-8 h-8" />}
-            {theme === "dark" && <MoonIcon className="swap-on fill-current w-8 h-8" />}
-            {theme === "sync" && <SyncIcon className="swap-on fill-current w-8 h-8" />}
-          </button>
-        </div>
-
-        <div className="ml-4" />
-        <div className="tooltip" data-tip="切换字体">
-          <div id="font-toggle" className="custom-settings-button-style transition-all duration-300 hover:scale-110">
-            <label className="swap">
-              <input type="checkbox" onClick={toggleFont} />
-              <FontIcon className="swap-on fill-current w-8 h-8" />
-              <FontIcon className="swap-off fill-current w-8 h-8" />
-            </label>
-          </div>
-        </div>
-        <div className="ml-4" />
-        <div className="tooltip" data-tip="静音">
-          <div id="mute-toggle" className="custom-settings-button-style transition-all duration-300 hover:scale-110">
-            <label className="swap">
-              <input type="checkbox" checked={isMuted} onChange={toggleMute} />
-              <VolumeOffIcon className="swap-on fill-current w-8 h-8" />
-              <VolumeOnIcon className="swap-off fill-current w-8 h-8" />
-            </label>
-          </div>
-        </div>
-      </div>
+      <SettingsPanel
+        theme={theme}
+        onThemeToggle={toggleTheme}
+        onFontToggle={toggleFont}
+        isMuted={isMuted}
+        onMuteToggle={toggleMute}
+      />
     </div>
   );
 }
