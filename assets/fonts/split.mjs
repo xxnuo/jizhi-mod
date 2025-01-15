@@ -1,5 +1,5 @@
 import { fontSplit } from "cn-font-split";
-import fs from "fs/promises";
+import fs from "node:fs/promises";
 
 // 包含需要用到的所有字符的文件们
 const textSrc = [
