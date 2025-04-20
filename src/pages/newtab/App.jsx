@@ -5,6 +5,7 @@ import "animate.css";
 import "./App.css";
 import PoemDisplay from "./components/PoemDisplay";
 import SettingsPanel from "./components/SettingsPanel";
+import LinkGroup from "./components/LinkGroup";
 import { useTheme } from "./hooks/useTheme";
 import { useFont } from "./hooks/useFont";
 import { useVoice } from "./hooks/useVoice";
@@ -57,8 +58,9 @@ export default function App() {
 
   return (
     <div id="app" className="custom-font" style={{ "--custom-font-name": currentFont }}>
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex flex-col gap-32 items-center justify-center">
         <PoemDisplay poem={poem} isAnimating={isAnimating} onTitleClick={handleTitleClick} />
+        <LinkGroup />
       </div>
 
       <SettingsPanel

@@ -29,17 +29,6 @@ export default function SettingsPanel({ theme, onThemeToggle, onFontToggle, isMu
           </label>
         </div>
       </div>
-
-      <div className="ml-4" />
-      <div className="tooltip" data-tip="静音">
-        <div id="mute-toggle" className="custom-settings-button-style transition-all duration-300 hover:scale-110">
-          <label className="swap">
-            <input type="checkbox" checked={isMuted} onChange={onMuteToggle} />
-            <VolumeOffIcon className="swap-on fill-current w-8 h-8" />
-            <VolumeOnIcon className="swap-off fill-current w-8 h-8" />
-          </label>
-        </div>
-      </div>
     </div>
   );
 } 
