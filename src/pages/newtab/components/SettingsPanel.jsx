@@ -6,7 +6,6 @@ import {
   IoVolumeHighOutline,
   IoVolumeMuteOutline,
   IoSettingsOutline,
-  IoSearchOutline,
   IoHeartOutline,
   IoHeart,
   IoDownloadOutline,
@@ -93,7 +92,6 @@ export default function SettingsPanel({
   isMuted,
   onMuteToggle,
   onNext,
-  onSearch,
   onFavorite,
   favorite,
   onLibrary,
@@ -116,7 +114,6 @@ export default function SettingsPanel({
     ["font-toggle", "切换字体（F）", BiFontFamily, onFontToggle],
     ["mute-toggle", isMuted ? "取消静音" : "静音", VolumeIcon, onMuteToggle],
     ["next-poem", "换一句（空格）", IoRefreshOutline, onNext],
-    ["search", "搜索（/）", IoSearchOutline, onSearch],
     [
       "favorite",
       favorite ? "取消收藏" : "收藏",

@@ -235,10 +235,6 @@ export default function App() {
         isMuted={isMuted}
         onMuteToggle={toggleMute}
         onNext={nextPoem}
-        onSearch={() => {
-          setQuery("");
-          setPanel("search");
-        }}
         onFavorite={toggleFavorite}
         favorite={favorites.includes(poem.id)}
         onLibrary={() => setPanel("library")}
