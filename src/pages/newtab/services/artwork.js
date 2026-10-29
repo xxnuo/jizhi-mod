@@ -192,7 +192,7 @@ export const POSITIONS = {
   "bottom-right": "右下角",
 };
 export const FILLS = {
-  cover: "铺满（裁切）",
+  cover: "铺满「裁切」",
   contain: "完整显示",
   fill: "拉伸填充",
   none: "原尺寸居中",
