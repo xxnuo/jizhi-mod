@@ -355,3 +355,35 @@ test("长出处和长作者的竖排布局，小屏仍完整显示", async ({ pa
     await page.screenshot({ path: `test-results/vertical-long-${index}.png` });
   }
 });
+
+test("点击复制后的提示不与横竖排菜单重叠", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  for (const vertical of [false, true]) {
+    await page.evaluate(
+      (vertical) =>
+        localStorage.setItem("preferences", JSON.stringify({ vertical })),
+      vertical,
+    );
+    for (const viewport of [
+      { width: 1280, height: 720 },
+      { width: 375, height: 667 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.reload();
+      await tool(page, "复制诗句（C）");
+      const notice = page.getByRole("status");
+      await expect(notice).toHaveText("已复制诗句及出处");
+      await expect(
+        page.getByRole("button", { name: "诗词工具", exact: true }),
+      ).toHaveAttribute("aria-expanded", "true");
+      const message = await notice.boundingBox();
+      const menu = await page.locator(".toolbar-actions").boundingBox();
+      const overlaps =
+        message.x < menu.x + menu.width &&
+        message.x + message.width > menu.x &&
+        message.y < menu.y + menu.height &&
+        message.y + message.height > menu.y;
+      expect(overlaps).toBe(false);
+    }
+  }
+});
