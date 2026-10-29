@@ -13,6 +13,66 @@ async function close(page) {
   await page.getByRole("button", { name: "关闭", exact: true }).click();
 }
 
+test("快捷操作分项排版，康熙字体的空字形由备用字体补齐，诗词斜杠正常显示", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
+  const entry = SENTENCES.find((entry) => entry.hitokoto.includes("/"));
+  await page.evaluate(
+    (id) => localStorage.setItem("favorites", JSON.stringify([id])),
+    entry.uuid,
+  );
+  await page.reload();
+  await tool(page, "收藏与历史");
+  await page.locator(".library-list button").click();
+  await expect(page.locator(".poem-title")).toContainText("/");
+  const counts = await page.evaluate(async () => {
+    const characters = [..."/·—…←→"];
+    await document.fonts.load('64px "LXGW WenKai Light"', characters.join(""));
+    await document.fonts.load('64px "nzgrKangxi"', "诗");
+    await document.fonts.ready;
+    const canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    const context = canvas.getContext("2d");
+    context.font = `64px ${getComputedStyle(document.querySelector(".poem-title")).fontFamily}`;
+    return characters.map((character) => {
+      context.clearRect(0, 0, 128, 128);
+      context.fillText(character, 20, 80);
+      const pixels = context.getImageData(0, 0, 128, 128).data;
+      return {
+        character,
+        painted: Array.from(pixels).filter(
+          (value, i) => i % 4 === 3 && value > 0,
+        ).length,
+      };
+    });
+  });
+  for (const { character, painted } of counts)
+    expect(painted, character).toBeGreaterThan(0);
+  await page.screenshot({ path: "test-results/poem-slash-fallback.png" });
+  await settings(page);
+  const help = page.getByRole("region", { name: "快捷操作" });
+  await expect(help.getByRole("term")).toHaveCount(7);
+  await expect(help.getByRole("definition")).toHaveCount(7);
+  await expect(help.locator("kbd", { hasText: /^\/$/ })).toBeVisible();
+  await expect(
+    page.getByText("离线朗读需要系统已安装中文语音包。", { exact: true }),
+  ).toHaveCount(0);
+  await help.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: "test-results/shortcuts-desktop.png" });
+  await page.setViewportSize({ width: 375, height: 667 });
+  await help.scrollIntoViewIfNeeded();
+  expect(await help.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(
+    true,
+  );
+  await expect(help.locator("dl")).toHaveCSS(
+    "grid-template-columns",
+    /^(\d+(\.\d+)?px)$/,
+  );
+  await page.screenshot({ path: "test-results/shortcuts-mobile.png" });
+});
+
 test("大幅国画和全部边饰逐张预览，四角定位和填充样式保存", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
   await settings(page);

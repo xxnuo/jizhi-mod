@@ -421,8 +421,34 @@ select:focus-visible {
 }
 .settings-help {
   font-size: calc(0.85rem + 2px);
-  opacity: 0.7;
   margin-top: 1.5rem;
+}
+.settings-help dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem 1.5rem;
+  line-height: 1.8;
+}
+.settings-help dl > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.settings-help dt {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.settings-help dd {
+  white-space: nowrap;
+}
+.settings-help kbd {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85em;
+  padding: 0.05em 0.35em;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  line-height: 1.5;
 }
 .poem-dialog form {
   display: flex;
@@ -479,6 +505,9 @@ select:focus-visible {
   }
 }
 @media (max-width: 480px) {
+  .settings-help dl {
+    grid-template-columns: 1fr;
+  }
   .poem-stage {
     padding: 3rem 1rem 8rem;
   }

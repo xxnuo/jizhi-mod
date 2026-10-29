@@ -75,11 +75,28 @@ export function Preferences({ preferences, onChange }) {
         onSettingChange={(framePosition) => onChange({ framePosition })}
       />
 
-      <p className="settings-help">
-        空格 / 双击空白：换一句；F：字体；T：主题；C：复制；S：朗读 / 暂停；/
-        或直接输入：搜索；Esc：关闭。
-      </p>
-      <p className="settings-help">离线朗读需要系统已安装中文语音包。</p>
+      <section className="settings-help" aria-labelledby="shortcuts-title">
+        <h3 id="shortcuts-title">快捷操作</h3>
+        <dl>
+          {[
+            ["空格", "或双击空白", "换一句"],
+            ["F", "", "切换字体"],
+            ["T", "", "切换主题"],
+            ["C", "", "复制诗句"],
+            ["S", "", "朗读 / 暂停"],
+            ["/", "或直接输入", "搜索"],
+            ["Esc", "", "关闭"],
+          ].map(([key, hint, action]) => (
+            <div key={key}>
+              <dt>
+                <kbd>{key}</kbd>
+                {hint && <span>{hint}</span>}
+              </dt>
+              <dd>{action}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
     </div>
   );
 }
