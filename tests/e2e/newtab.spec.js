@@ -274,6 +274,14 @@ test("横排菜单标题在下，竖排菜单标题在右，小屏可滚动", as
     const first = page.locator("#theme-toggle");
     const icon = await first.locator("svg").boundingBox();
     const label = await first.locator(".toolbar-label").boundingBox();
+    const drawerIcon = await page
+      .locator(".poem-toolbar > button svg")
+      .boundingBox();
+    expect(icon.width).toBe(18);
+    expect(icon.height).toBe(18);
+    expect(
+      Math.abs(icon.x + icon.width / 2 - drawerIcon.x - drawerIcon.width / 2),
+    ).toBeLessThan(0.5);
     if (vertical) expect(label.x).toBeGreaterThanOrEqual(icon.x + icon.width);
     else expect(label.y).toBeGreaterThanOrEqual(icon.y + icon.height);
     await page.screenshot({
@@ -284,6 +292,18 @@ test("横排菜单标题在下，竖排菜单标题在右，小屏可滚动", as
       "font-size",
       "11.2px",
     );
+    const mobileIcon = await first.locator("svg").boundingBox();
+    const mobileDrawerIcon = await page
+      .locator(".poem-toolbar > button svg")
+      .boundingBox();
+    expect(
+      Math.abs(
+        mobileIcon.x +
+          mobileIcon.width / 2 -
+          mobileDrawerIcon.x -
+          mobileDrawerIcon.width / 2,
+      ),
+    ).toBeLessThan(0.5);
     const menu = page.locator(".toolbar-actions");
     const box = await menu.boundingBox();
     expect(box.x).toBeGreaterThanOrEqual(0);
