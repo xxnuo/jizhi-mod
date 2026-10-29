@@ -12,7 +12,7 @@ export const ARTWORKS = {
     file: "background-baishan.webp",
   },
   mist: {
-    name: "烟岚群山",
+    name: "远山",
     file: "background-qunshan.webp",
   },
   sunrise: {
@@ -35,10 +35,6 @@ export const ARTWORKS = {
 export const FRAMES = {
   none: {
     name: "无边饰",
-  },
-  mountains: {
-    name: "远山",
-    file: "qunshan.webp",
   },
   landscape: {
     name: "桂林山水",

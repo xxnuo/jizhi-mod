@@ -40,13 +40,12 @@ async function drawBackground(context, canvas, colors) {
     );
     const width = frame.width * scale;
     const height = frame.height * scale;
-    const inset = (canvas.width * 20) / 1080;
     const left = colors.framePosition.endsWith("-left");
     const top = colors.framePosition.startsWith("top-");
     context.drawImage(
       frame,
-      left ? inset : canvas.width - width - inset,
-      top ? inset : canvas.height - height - inset,
+      left ? 0 : canvas.width - width,
+      top ? 0 : canvas.height - height,
       width,
       height,
     );

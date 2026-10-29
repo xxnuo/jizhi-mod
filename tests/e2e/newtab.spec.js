@@ -24,7 +24,7 @@ test("大幅国画和全部边饰逐张预览，四角定位和填充样式保�
   ).toHaveCount(0);
   for (const [label, selector, count] of [
     ["国画配图", ".background-artwork", 7],
-    ["画面边饰", ".background-frame", 38],
+    ["画面边饰", ".background-frame", 37],
   ]) {
     const picker = page.getByRole("group", { name: label, exact: true });
     const buttons = picker.locator("button:has(img)");
@@ -73,11 +73,11 @@ test("大幅国画和全部边饰逐张预览，四角定位和填充样式保�
     );
     const box = await page.locator(".background-frame").boundingBox();
     expect(position.endsWith("left") ? box.x : box.x + box.width).toBeCloseTo(
-      position.endsWith("left") ? 20 : 1260,
+      position.endsWith("left") ? 0 : 1280,
       0,
     );
     expect(position.startsWith("top") ? box.y : box.y + box.height).toBeCloseTo(
-      position.startsWith("top") ? 20 : 700,
+      position.startsWith("top") ? 0 : 720,
       0,
     );
   }

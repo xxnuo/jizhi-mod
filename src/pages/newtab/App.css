@@ -70,8 +70,8 @@ select:focus-visible {
 }
 .background-frame {
   position: absolute;
-  right: 1.25rem;
-  bottom: 1.25rem;
+  right: 0;
+  bottom: 0;
   width: clamp(5rem, 18vw, 12rem);
   max-width: 28vw;
   max-height: 24dvh;
@@ -79,12 +79,12 @@ select:focus-visible {
   object-position: bottom right;
 }
 .background-frame[data-position^="top-"] {
-  top: 1.25rem;
+  top: 0;
   bottom: auto;
   object-position: top right;
 }
 .background-frame[data-position$="-left"] {
-  left: 1.25rem;
+  left: 0;
   right: auto;
   object-position: bottom left;
 }

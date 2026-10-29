@@ -82,6 +82,9 @@ export function writeStorage(key, value) {
 }
 export function readPreferences() {
   const value = readStorage("preferences", {});
+  const movedMountains =
+    (value?.frame === "mountains" || value?.artwork === "mountains") &&
+    (!Object.hasOwn(ARTWORKS, value?.artwork) || value.artwork === "none");
   const movedArtwork =
     Object.hasOwn(FRAMES, value?.artwork) &&
     !Object.hasOwn(ARTWORKS, value?.artwork) &&
@@ -98,9 +101,11 @@ export function readPreferences() {
     framePosition: Object.hasOwn(POSITIONS, framePosition)
       ? framePosition
       : DEFAULTS.framePosition,
-    artwork: Object.hasOwn(ARTWORKS, value?.artwork)
-      ? value.artwork
-      : DEFAULTS.artwork,
+    artwork: movedMountains
+      ? "mist"
+      : Object.hasOwn(ARTWORKS, value?.artwork)
+        ? value.artwork
+        : DEFAULTS.artwork,
     frame:
       movedArtwork ||
       (Object.hasOwn(FRAMES, value?.frame) ? value.frame : DEFAULTS.frame),

@@ -35,6 +35,23 @@ test("大背景与边饰全部可选、无多余素材，旧的小幅配景迁�
   expect(new Set(files).size).toBe(files.length);
   expect(readdirSync("public/illustrations").sort()).toEqual([...files].sort());
   expect(FRAMES).not.toHaveProperty("eaves");
+  expect(FRAMES).not.toHaveProperty("mountains");
+  expect(ARTWORKS.mist).toMatchObject({
+    name: "远山",
+    file: "background-qunshan.webp",
+  });
+  for (const preferences of [
+    { frame: "mountains" },
+    { artwork: "mountains" },
+  ]) {
+    localStorage.setItem("preferences", JSON.stringify(preferences));
+    expect(readPreferences()).toMatchObject({ artwork: "mist", frame: "none" });
+  }
+  localStorage.setItem(
+    "preferences",
+    JSON.stringify({ artwork: "lake", frame: "mountains" }),
+  );
+  expect(readPreferences()).toMatchObject({ artwork: "lake", frame: "none" });
   for (const color of Object.values(BACKGROUNDS))
     expect(color).not.toHaveProperty("figure");
   localStorage.setItem(
