@@ -249,10 +249,10 @@ select:focus-visible {
 .poem-dialog p {
   line-height: 1.9;
 }
-.poem-dialog:has(.preferences) {
+.poem-dialog:has(.preferences, .library-tabs) {
   font-size: calc(1rem + 2px);
 }
-.poem-dialog:has(.preferences) h2 {
+.poem-dialog:has(.preferences, .library-tabs) h2 {
   font-size: calc(1.2rem + 2px);
 }
 .preferences label {
@@ -317,6 +317,7 @@ select:focus-visible {
   padding: 1rem 0;
 }
 .library-list small {
+  font-size: calc(0.8rem + 2px);
   display: block;
   opacity: 0.65;
   margin-top: 0.3rem;
