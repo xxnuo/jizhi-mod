@@ -35,6 +35,7 @@ select:focus-visible {
   font-family: var(--custom-font-name), "LXGW WenKai Light", 楷体, serif;
 }
 #app {
+  --source-font-size: clamp(1rem, 2.6vw, 1.8rem);
   min-height: 100dvh;
   color: var(--color-base-content);
   background: var(--color-base-100);
@@ -64,7 +65,7 @@ select:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  font-size: clamp(1rem, 2.6vw, 1.8rem);
+  font-size: var(--source-font-size);
 }
 .custom-author-style {
   background: #a52e2e;
@@ -74,6 +75,10 @@ select:focus-visible {
   border-radius: 2px;
   padding: 0.1em 0.35em;
   font-size: 0.85em;
+}
+.poem-vertical,
+.toolbar-vertical {
+  --source-font-size: clamp(0.9rem, 2vw, 1.15rem);
 }
 .poem-vertical {
   display: flex;
@@ -101,7 +106,6 @@ select:focus-visible {
   gap: 1.2rem;
   padding-top: 0.5em;
   flex-shrink: 0;
-  font-size: clamp(0.9rem, 2vw, 1.15rem);
 }
 .poem-vertical .source-title {
   writing-mode: vertical-rl;
@@ -174,7 +178,7 @@ select:focus-visible {
   height: 1.65rem;
 }
 .toolbar-label {
-  font-size: 0.8rem;
+  font-size: var(--source-font-size);
   line-height: 1.4;
   white-space: nowrap;
 }
@@ -332,7 +336,8 @@ select:focus-visible {
   .poem-vertical {
     gap: 1rem;
   }
-  .poem-vertical .poem-source {
-    font-size: 1rem;
+  .poem-vertical,
+  .toolbar-vertical {
+    --source-font-size: 1rem;
   }
 }

@@ -136,13 +136,11 @@ export default function SettingsPanel({
         ref={drawerButton}
         type="button"
         aria-label="诗词工具"
-        title="诗词工具"
         aria-expanded={open}
         aria-controls="poem-tools"
         onClick={() => setOpen((previous) => !previous)}
       >
         <IoMenuOutline aria-hidden="true" />
-        <span className="toolbar-label">工具</span>
       </button>
       <div id="poem-tools" className="toolbar-actions" hidden={!open}>
         {buttons.map(([id, label, Icon, action]) => (

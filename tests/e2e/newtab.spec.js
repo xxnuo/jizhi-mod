@@ -233,6 +233,8 @@ test("初始默认百度与宣纸纹理，已移除繁体显示入口", async ({
 test("工具栏仅点击切换，悬停和聚焦不会展开，移开不会隐藏", async ({ page }) => {
   const trigger = page.getByRole("button", { name: "诗词工具", exact: true });
   await expect(page.locator(".poem-toolbar button:visible")).toHaveCount(1);
+  await expect(trigger.locator(".toolbar-label")).toHaveCount(0);
+  await expect(trigger).not.toHaveAttribute("title");
   await trigger.hover();
   await trigger.focus();
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
@@ -265,6 +267,13 @@ test("横排菜单标题在下，竖排菜单标题在右，小屏可滚动", as
       "flex-direction",
       vertical ? "column" : "row",
     );
+    const sourceSize = await page
+      .locator(".source-title")
+      .evaluate((element) => getComputedStyle(element).fontSize);
+    await expect(page.locator("#theme-toggle .toolbar-label")).toHaveCSS(
+      "font-size",
+      sourceSize,
+    );
     const first = page.locator("#theme-toggle");
     const icon = await first.locator("svg").boundingBox();
     const label = await first.locator(".toolbar-label").boundingBox();
@@ -274,6 +283,13 @@ test("横排菜单标题在下，竖排菜单标题在右，小屏可滚动", as
       path: `test-results/menu-${vertical ? "vertical" : "horizontal"}.png`,
     });
     await page.setViewportSize({ width: 375, height: 667 });
+    const mobileSourceSize = await page
+      .locator(".source-title")
+      .evaluate((element) => getComputedStyle(element).fontSize);
+    await expect(page.locator("#theme-toggle .toolbar-label")).toHaveCSS(
+      "font-size",
+      mobileSourceSize,
+    );
     const menu = page.locator(".toolbar-actions");
     const box = await menu.boundingBox();
     expect(box.x).toBeGreaterThanOrEqual(0);
