@@ -60,8 +60,8 @@ export async function exportPoem(poem, font, vertical, colors) {
   );
   await document.fonts.ready;
   const canvas = document.createElement("canvas");
-  canvas.width = 2160;
-  canvas.height = 2880;
+  canvas.width = vertical ? 2160 : 2880;
+  canvas.height = vertical ? 2880 : 2160;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("浏览器不支持图片导出");
   context.fillStyle = colors.background;
@@ -69,16 +69,14 @@ export async function exportPoem(poem, font, vertical, colors) {
   await drawBackground(context, canvas, colors);
   context.fillStyle = colors.foreground;
   const lines = formatPoem(poem.title).split("\n");
-  const size = Math.min(
-    110,
-    vertical
-      ? 1400 / 1.35 / Math.max(...lines.map((line) => [...line].length))
-      : 1800 / Math.max(...lines.map((line) => [...line].length)),
-    1400 / (lines.length * 1.8),
-  );
-  context.font = `${size}px "${font}", "LXGW WenKai Light", serif`;
+  const maxWidth = canvas.width * 0.8;
+  const maxHeight = canvas.height * 0.62;
+  context.textAlign = "center";
   context.textBaseline = "alphabetic";
-  const drawText = (text, x, y, maxWidth = 1800) => {
+  const setFont = (size) => {
+    context.font = `${size}px "${font}", "LXGW WenKai Light", serif`;
+  };
+  const drawText = (text, x, y) => {
     const metrics = context.measureText(text);
     context.fillText(
       text,
@@ -86,36 +84,103 @@ export async function exportPoem(poem, font, vertical, colors) {
       y +
         (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) /
           2,
-      maxWidth,
     );
   };
   if (vertical) {
-    context.textAlign = "center";
-    const right = canvas.width / 2 + (lines.length - 1) * size;
+    const sourceSize = Math.min(
+      54,
+      maxHeight / (([...poem.from].length + [...poem.who].length) * 1.25 + 1.5),
+    );
+    const size = Math.min(
+      110,
+      maxHeight / (Math.max(...lines.map((line) => [...line].length)) * 1.35),
+      (maxWidth - sourceSize * 1.5) / (lines.length * 1.9 + 1.5),
+    );
+    const sourceWidth = sourceSize * 1.5;
+    const bodyWidth = size + (lines.length - 1) * size * 1.9;
+    const left = (canvas.width - bodyWidth - sourceWidth - size * 1.5) / 2;
+    const bodyHeight =
+      size +
+      (Math.max(...lines.map((line) => [...line].length)) - 1) * size * 1.35;
+    const sealHeight = poem.who
+      ? [...poem.who].length * sourceSize * 1.25 + sourceSize * 0.6
+      : 0;
+    const sourceHeight =
+      [...poem.from].length * sourceSize * 1.25 +
+      (poem.who ? sourceSize * 0.75 + sealHeight : 0);
+    const top = (canvas.height - Math.max(bodyHeight, sourceHeight)) / 2;
+    const right = left + sourceWidth + size * 1.5 + bodyWidth - size / 2;
+    setFont(size);
     lines.forEach((line, column) =>
       [...line].forEach((character, row) =>
-        drawText(character, right - column * size * 2, 700 + row * size * 1.35),
+        drawText(
+          character,
+          right - column * size * 1.9,
+          top + size / 2 + row * size * 1.35,
+        ),
       ),
     );
-  } else {
-    context.textAlign = "center";
-    lines.forEach((line, index) =>
+    setFont(sourceSize);
+    const sourceX = left + sourceWidth / 2;
+    [...poem.from].forEach((character, row) =>
       drawText(
-        line,
-        1080,
-        1200 + (index - (lines.length - 1) / 2) * size * 1.8,
+        character,
+        sourceX,
+        top + sourceSize / 2 + row * sourceSize * 1.25,
       ),
     );
-  }
-  context.textAlign = "center";
-  context.font = `54px "${font}", "LXGW WenKai Light", serif`;
-  drawText(`「${poem.from}」`, 1080, 2250, 1800);
-  if (poem.who) {
-    const sealWidth = Math.max(100, context.measureText(poem.who).width + 48);
-    context.fillStyle = "#a52e2e";
-    context.fillRect(1080 - sealWidth / 2, 2370, sealWidth, 90);
-    context.fillStyle = "#fff";
-    drawText(poem.who, 1080, 2415);
+    if (poem.who) {
+      const sealTop =
+        top + [...poem.from].length * sourceSize * 1.25 + sourceSize * 0.75;
+      context.fillStyle = "#a52e2e";
+      context.fillRect(left, sealTop, sourceWidth, sealHeight);
+      context.fillStyle = "#fff";
+      [...poem.who].forEach((character, row) =>
+        drawText(
+          character,
+          sourceX,
+          sealTop + sourceSize * 0.8 + row * sourceSize * 1.25,
+        ),
+      );
+    }
+  } else {
+    setFont(110);
+    const size = Math.min(
+      110,
+      (110 * maxWidth) /
+        Math.max(...lines.map((line) => context.measureText(line).width)),
+      maxHeight / (lines.length * 1.8),
+    );
+    setFont(54);
+    const source = `「${poem.from}」`;
+    const sourceWidth = context.measureText(source).width;
+    const sealWidth = poem.who ? context.measureText(poem.who).width + 48 : 0;
+    const gap = poem.who ? 48 : 0;
+    const sourceScale = Math.min(1, maxWidth / (sourceWidth + sealWidth + gap));
+    const rowHeight = (poem.who ? 90 : 54) * sourceScale;
+    const bodyHeight = size + (lines.length - 1) * size * 1.8;
+    const top = (canvas.height - bodyHeight - size * 0.9 - rowHeight) / 2;
+    setFont(size);
+    lines.forEach((line, index) =>
+      drawText(line, canvas.width / 2, top + size / 2 + index * size * 1.8),
+    );
+    setFont(54 * sourceScale);
+    const left =
+      (canvas.width - (sourceWidth + sealWidth + gap) * sourceScale) / 2;
+    const sourceY = top + bodyHeight + size * 0.9 + rowHeight / 2;
+    drawText(source, left + (sourceWidth * sourceScale) / 2, sourceY);
+    if (poem.who) {
+      const sealLeft = left + (sourceWidth + gap) * sourceScale;
+      context.fillStyle = "#a52e2e";
+      context.fillRect(
+        sealLeft,
+        sourceY - rowHeight / 2,
+        sealWidth * sourceScale,
+        rowHeight,
+      );
+      context.fillStyle = "#fff";
+      drawText(poem.who, sealLeft + (sealWidth * sourceScale) / 2, sourceY);
+    }
   }
   const blob = await new Promise((resolve) =>
     canvas.toBlob(resolve, "image/png"),

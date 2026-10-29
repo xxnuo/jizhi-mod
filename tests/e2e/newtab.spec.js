@@ -524,22 +524,89 @@ test("搜索键入呼出，输入区不触发快捷键，两种搜索引擎编�
   await expect(page.getByRole("searchbox")).toHaveValue("x");
 });
 
-test("高分辨率横竖卡片真实下载 PNG", async ({ page }) => {
-  for (const vertical of [false, true]) {
-    if (vertical) {
-      await settings(page);
-      await page.getByLabel("竖排排版").check();
-      await close(page);
-    }
+test("横竖切换导出的尺寸与作者落款跟随页面，切回横排恢复一致", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
+  const entry = SENTENCES.find(
+    (entry) => entry.from === "将进酒" && entry.from_who === "李白",
+  );
+  await page.evaluate(
+    (id) => localStorage.setItem("favorites", JSON.stringify([id])),
+    entry.uuid,
+  );
+  await page.reload();
+  await tool(page, "收藏与历史");
+  await page.locator(".library-list button").click();
+  await settings(page);
+  await selectBackground(page, "yuebai");
+  await page.getByLabel("宣纸纹理").uncheck();
+  await selectDecoration(page, "国画配图", "none");
+  await selectDecoration(page, "画面边饰", "none");
+  await close(page);
+  let firstHorizontal;
+  for (const vertical of [false, true, false]) {
+    await settings(page);
+    await page.getByLabel("竖排排版").setChecked(vertical);
+    await close(page);
     const download = page.waitForEvent("download");
     await tool(page, "导出诗词卡片");
     const file = await download;
     const fs = require("node:fs");
     const data = fs.readFileSync(await file.path());
     expect(data.subarray(1, 4).toString()).toBe("PNG");
-    expect(data.readUInt32BE(16)).toBe(2160);
-    expect(data.readUInt32BE(20)).toBe(2880);
+    expect(data.readUInt32BE(16)).toBe(vertical ? 2160 : 2880);
+    expect(data.readUInt32BE(20)).toBe(vertical ? 2880 : 2160);
     expect(data.length).toBeGreaterThan(10000);
+    await file.saveAs(
+      `test-results/card-layout-${vertical ? "vertical" : "horizontal"}.png`,
+    );
+    const seal = await page.evaluate(async (base64) => {
+      const image = new Image();
+      image.src = `data:image/png;base64,${base64}`;
+      await image.decode();
+      const canvas = document.createElement("canvas");
+      canvas.width = image.width / 10;
+      canvas.height = image.height / 10;
+      const context = canvas.getContext("2d");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const pixels = context.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      ).data;
+      let left = canvas.width,
+        right = -1,
+        top = canvas.height,
+        bottom = -1;
+      for (let y = 0; y < canvas.height; y++)
+        for (let x = 0; x < canvas.width; x++) {
+          const i = (y * canvas.width + x) * 4;
+          if (pixels[i] > 120 && pixels[i + 1] < 100 && pixels[i + 2] < 100) {
+            left = Math.min(left, x);
+            right = Math.max(right, x);
+            top = Math.min(top, y);
+            bottom = Math.max(bottom, y);
+          }
+        }
+      return {
+        width: right - left + 1,
+        height: bottom - top + 1,
+        center: (left + right) / 2,
+        canvasWidth: canvas.width,
+      };
+    }, data.toString("base64"));
+    expect(seal.width).toBeGreaterThan(0);
+    if (vertical) {
+      expect(seal.height).toBeGreaterThan(seal.width);
+      expect(seal.center).toBeLessThan(seal.canvasWidth / 2);
+    } else {
+      expect(seal.width).toBeGreaterThan(seal.height);
+      expect(seal.center).toBeGreaterThan(seal.canvasWidth / 2);
+      if (firstHorizontal) expect(data.equals(firstHorizontal)).toBe(true);
+      else firstHorizontal = data;
+    }
   }
 });
 
