@@ -1,8 +1,6 @@
 export const ENGINES = {
-  Google: "https://www.google.com/search?q=",
   百度: "https://www.baidu.com/s?wd=",
-  Bing: "https://www.bing.com/search?q=",
-  DuckDuckGo: "https://duckduckgo.com/?q=",
+  Google: "https://www.google.com/search?q=",
 };
 export const BACKGROUNDS = {
   theme: { name: "跟随主题" },
@@ -14,7 +12,7 @@ export const BACKGROUNDS = {
 };
 export const DEFAULTS = {
   vertical: false,
-  engine: "Bing",
+  engine: "百度",
   background: "theme",
   texture: true,
 };

@@ -30,7 +30,7 @@ test("原始词库逐条保留，不替换、不截断正文和出处", () => {
 });
 test("损坏和越界设置安全回退，存储失败不抛错", () => {
   localStorage.setItem("preferences", "{");
-  expect(readPreferences().engine).toBe("Bing");
+  expect(readPreferences().engine).toBe("百度");
   localStorage.setItem(
     "preferences",
     JSON.stringify({
@@ -41,7 +41,7 @@ test("损坏和越界设置安全回退，存储失败不抛错", () => {
     }),
   );
   expect(readPreferences()).toMatchObject({
-    engine: "Bing",
+    engine: "百度",
     background: "theme",
     vertical: false,
   });
@@ -77,8 +77,8 @@ test("每日配色按本地日期稳定轮换，深色使用独立配色，搜�
     ).toBe("诗 & 月 #");
 });
 
-test("默认 Bing 和宣纸纹理，保留已有明确偏好，忽略旧繁体开关", () => {
-  expect(readPreferences()).toMatchObject({ engine: "Bing", texture: true });
+test("默认百度 和宣纸纹理，保留已有明确偏好，忽略旧繁体开关", () => {
+  expect(readPreferences()).toMatchObject({ engine: "百度", texture: true });
   localStorage.setItem(
     "preferences",
     JSON.stringify({ engine: "Google", texture: false, traditional: true }),
@@ -87,4 +87,12 @@ test("默认 Bing 和宣纸纹理，保留已有明确偏好，忽略旧繁体�
   expect(readPreferences()).not.toHaveProperty("traditional");
   localStorage.setItem("preferences", JSON.stringify({ texture: "false" }));
   expect(readPreferences().texture).toBe(true);
+});
+
+test("仅保留百度和 Google，旧 Bing 和 DuckDuckGo 偏好回退百度", () => {
+  expect(Object.keys(ENGINES)).toEqual(["百度", "Google"]);
+  for (const engine of ["Bing", "DuckDuckGo"]) {
+    localStorage.setItem("preferences", JSON.stringify({ engine }));
+    expect(readPreferences().engine).toBe("百度");
+  }
 });

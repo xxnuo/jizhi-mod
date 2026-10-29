@@ -13,7 +13,10 @@ async function close(page) {
   await page.getByRole("button", { name: "关闭", exact: true }).click();
 }
 
-test("点击出处和作者直接搜索，保留完整原始语句库", async ({ page }) => {
+test("点击出处和作者直接搜索，保留完整原始语句库", async ({
+  page,
+  context,
+}) => {
   const entry = SENTENCES.find((entry) => entry.from_who);
   await page.evaluate(
     (id) => localStorage.setItem("favorites", JSON.stringify([id])),
@@ -22,7 +25,7 @@ test("点击出处和作者直接搜索，保留完整原始语句库", async ({
   await page.reload();
   await tool(page, "收藏与历史");
   await page.locator(".library-list button").click();
-  await page.route("https://**/*", (route) =>
+  await context.route("https://**/*", (route) =>
     route.fulfill({ body: "搜索结果" }),
   );
   for (const [label, query] of [
@@ -34,8 +37,8 @@ test("点击出处和作者直接搜索，保留完整原始语句库", async ({
     const opened = page.waitForEvent("popup");
     await link.click();
     const popup = await opened;
-    await popup.waitForLoadState();
-    expect(new URL(popup.url()).searchParams.get("q")).toBe(query);
+    await expect(popup).toHaveURL(/^https:\/\/www.baidu.com\/s\?/);
+    expect(new URL(popup.url()).searchParams.get("wd")).toBe(query);
     await popup.close();
   }
   await expect(page.getByText("白话释义", { exact: true })).toHaveCount(0);
@@ -92,10 +95,10 @@ test("换句、字体主题快捷键、空白双击；收藏历史恢复", async
   );
 });
 
-test("搜索键入呼出，输入区不触发快捷键，四种搜索引擎编码查询", async ({
+test("搜索键入呼出，输入区不触发快捷键，两种搜索引擎编码查询", async ({
   page,
 }) => {
-  for (const engine of ["Google", "百度", "Bing", "DuckDuckGo"]) {
+  for (const engine of ["百度", "Google"]) {
     await settings(page);
     await page.getByLabel("默认搜索引擎").selectOption(engine);
     await close(page);
@@ -118,8 +121,6 @@ test("搜索键入呼出，输入区不触发快捷键，四种搜索引擎编�
       {
         Google: "www.google.com",
         百度: "www.baidu.com",
-        Bing: "www.bing.com",
-        DuckDuckGo: "duckduckgo.com",
       }[engine],
     );
     expect(url.searchParams.get(engine === "百度" ? "wd" : "q")).toBe(
@@ -212,10 +213,14 @@ test("竖排小屏与桌面渲染不溢出", async ({ page }) => {
   await page.screenshot({ path: "test-results/mobile-vertical.png" });
 });
 
-test("初始默认 Bing 与宣纸纹理，已移除繁体显示入口", async ({ page }) => {
+test("初始默认百度与宣纸纹理，已移除繁体显示入口", async ({ page }) => {
   await expect(page.locator("#app")).toHaveClass(/paper-texture/);
   await settings(page);
-  await expect(page.getByLabel("默认搜索引擎")).toHaveValue("Bing");
+  await expect(page.getByLabel("默认搜索引擎")).toHaveValue("百度");
+  await expect(page.getByLabel("默认搜索引擎").locator("option")).toHaveText([
+    "百度",
+    "Google",
+  ]);
   await expect(page.getByLabel("宣纸纹理")).toBeChecked();
   await expect(page.getByText("繁体显示", { exact: true })).toHaveCount(0);
   await page.getByLabel("宣纸纹理").uncheck();

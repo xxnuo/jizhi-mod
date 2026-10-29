@@ -52,7 +52,7 @@ test("真实 MV3 扩展：后台消息、离线词库、收藏、七种字体与
     await context.setOffline(true);
     await expect(
       page.getByRole("link", { name: "搜索诗词出处" }),
-    ).toHaveAttribute("href", /^https:\/\/www.bing.com\/search/);
+    ).toHaveAttribute("href", /^https:\/\/www.baidu.com\/s/);
     await tool(page, "收藏");
     await page.reload();
     await tool(page, "收藏与历史");
