@@ -73,6 +73,7 @@ export function Preferences({ preferences, onChange }) {
 }
 
 export default function SettingsPanel({
+  vertical,
   theme,
   onThemeToggle,
   onFontToggle,
@@ -121,14 +122,8 @@ export default function SettingsPanel({
   ];
   return (
     <nav
-      className="poem-toolbar"
+      className={`poem-toolbar ${vertical ? "toolbar-vertical" : ""}`}
       aria-label="诗词工具栏"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onFocus={() => setOpen(true)}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
-      }}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           event.preventDefault();
@@ -144,9 +139,10 @@ export default function SettingsPanel({
         title="诗词工具"
         aria-expanded={open}
         aria-controls="poem-tools"
-        onClick={() => setOpen(true)}
+        onClick={() => setOpen((previous) => !previous)}
       >
         <IoMenuOutline aria-hidden="true" />
+        <span className="toolbar-label">工具</span>
       </button>
       <div id="poem-tools" className="toolbar-actions" hidden={!open}>
         {buttons.map(([id, label, Icon, action]) => (
@@ -161,6 +157,7 @@ export default function SettingsPanel({
             onClick={action}
           >
             <Icon aria-hidden="true" />
+            <span className="toolbar-label">{label.replace(/（.*）/, "")}</span>
           </button>
         ))}
       </div>

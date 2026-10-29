@@ -178,6 +178,7 @@ export default function App() {
         />
       </main>
       <SettingsPanel
+        vertical={preferences.vertical}
         theme={theme}
         onThemeToggle={toggleTheme}
         onFontToggle={toggleFont}

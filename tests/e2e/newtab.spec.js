@@ -230,25 +230,60 @@ test("初始默认百度与宣纸纹理，已移除繁体显示入口", async ({
   await expect(page.locator("#app")).not.toHaveClass(/paper-texture/);
 });
 
-test("工具栏默认收起，悬停、点击、键盘都能展开及收起", async ({ page }) => {
+test("工具栏仅点击切换，悬停和聚焦不会展开，移开不会隐藏", async ({ page }) => {
   const trigger = page.getByRole("button", { name: "诗词工具", exact: true });
   await expect(page.locator(".poem-toolbar button:visible")).toHaveCount(1);
   await trigger.hover();
-  await expect(trigger).toHaveAttribute("aria-expanded", "true");
-  await expect(
-    page.getByRole("button", { name: "设置", exact: true }),
-  ).toBeVisible();
-  await page.locator(".poem-stage").hover({ position: { x: 5, y: 5 } });
+  await trigger.focus();
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
   await trigger.click();
   await expect(trigger).toHaveAttribute("aria-expanded", "true");
-  await page.keyboard.press("Escape");
+  await page.locator(".poem-stage").hover({ position: { x: 5, y: 5 } });
+  await page.locator(".poem-stage").click({ position: { x: 5, y: 5 } });
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await trigger.click();
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
-  await page.keyboard.press("Tab");
-  await trigger.focus();
+  await trigger.press("Enter");
   await expect(trigger).toHaveAttribute("aria-expanded", "true");
   await page.keyboard.press("Tab");
   await expect(page.locator("#theme-toggle")).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await expect(trigger).toBeFocused();
+});
+
+test("横排菜单标题在下，竖排菜单标题在右，小屏可滚动", async ({ page }) => {
+  for (const vertical of [false, true]) {
+    await page.evaluate(
+      (vertical) =>
+        localStorage.setItem("preferences", JSON.stringify({ vertical })),
+      vertical,
+    );
+    await page.reload();
+    await page.getByRole("button", { name: "诗词工具", exact: true }).click();
+    await expect(page.locator(".toolbar-actions")).toHaveCSS(
+      "flex-direction",
+      vertical ? "column" : "row",
+    );
+    const first = page.locator("#theme-toggle");
+    const icon = await first.locator("svg").boundingBox();
+    const label = await first.locator(".toolbar-label").boundingBox();
+    if (vertical) expect(label.x).toBeGreaterThanOrEqual(icon.x + icon.width);
+    else expect(label.y).toBeGreaterThanOrEqual(icon.y + icon.height);
+    await page.screenshot({
+      path: `test-results/menu-${vertical ? "vertical" : "horizontal"}.png`,
+    });
+    await page.setViewportSize({ width: 375, height: 667 });
+    const menu = page.locator(".toolbar-actions");
+    const box = await menu.boundingBox();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(375);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    await tool(page, "设置");
+    await expect(page.getByRole("dialog", { name: "设置" })).toBeVisible();
+    await close(page);
+    await page.setViewportSize({ width: 1280, height: 720 });
+  }
 });
 
 test("长出处和长作者的竖排布局，小屏仍完整显示", async ({ page }) => {
