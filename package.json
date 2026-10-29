@@ -12,11 +12,16 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "zip:all": "wxt zip && wxt zip -b firefox && wxt zip -b edge",
-    "split": "cd ./assets/fonts && node ./split.mjs"
+    "split": "cd ./assets/fonts && node ./split.mjs",
+    "test": "vitest run",
+    "test:e2e": "pnpm build && playwright test"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@wxt-dev/module-react": "^1.2.2",
@@ -24,6 +29,7 @@
     "cn-font-split": "^7.4.3",
     "daisyui": "^5.7.19",
     "driver.js": "^1.8.0",
+    "jsdom": "^30.1.3",
     "postcss": "^8.5.26",
     "prettier": "^3.9.6",
     "react": "^19.2.8",
@@ -33,8 +39,12 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.2.1",
+    "vitest": "^5.0.5",
     "web-ext": "^10.6.0",
     "wxt": "^0.21.4"
   },
-  "packageManager": "pnpm@11.22.0"
+  "packageManager": "pnpm@11.22.0",
+  "dependencies": {
+    "opencc-js": "^1.4.2"
+  }
 }

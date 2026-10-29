@@ -7,6 +7,7 @@ async function getVoice(text) {
   try {
     const response = await fetch(API_GetVoice_URL, {
       method: "POST",
+      signal: AbortSignal.timeout(5000),
       headers: {
         Authorization: API_KEY,
         "Content-Type": "application/json",

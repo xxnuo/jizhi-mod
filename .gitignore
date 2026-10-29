@@ -14,3 +14,7 @@ node_modules
 # 环境变量和密码
 .env.submit
 /components/tts.js
+
+# 测试输出
+/test-results/
+/playwright-report/

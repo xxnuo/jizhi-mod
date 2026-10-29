@@ -1,37 +1,39 @@
-import { useEffect } from "react";
+import { formatPoem } from "../services/poems";
 
-export default function PoemDisplay({ poem, isAnimating, onTitleClick }) {
-  useEffect(() => {
-    document.title = navigator.languages.includes("zh") ? "新标签页" : "New Tab";
-  }, []);
-
+export default function PoemDisplay({
+  poem,
+  vertical,
+  onTitleClick,
+  onDetails,
+}) {
   return (
-    <div className={`justify-center text-center ${isAnimating ? "animate__animated animate__fadeIn animate__faster" : ""}`}>
-      <div className="justify-center item-center flex flex-col">
+    <article
+      key={poem.id}
+      className={`poem ${vertical ? "poem-vertical" : ""}`}
+      aria-label="当前诗词"
+    >
+      <button
+        id="poem-title-container"
+        className="poem-title"
+        onClick={onTitleClick}
+        type="button"
+        title="朗读 / 暂停（S）"
+      >
+        {formatPoem(poem.title)}
+      </button>
+      <div id="poem-author-container" className="poem-source">
+        <button type="button" onClick={onDetails} aria-label="查看全文与释义">
+          「{poem.from}」
+        </button>
         <button
-          id="poem-title-container"
-          className="text-5xl mb-10 whitespace-pre-wrap cursor-pointer transition-all duration-300 hover:scale-105"
-          onClick={onTitleClick}
-          onKeyDown={(e) => e.key === 'Enter' && onTitleClick()}
           type="button"
+          onClick={onDetails}
+          className="custom-author-style author-seal"
+          aria-label="查看作者背景"
         >
-          {poem.title}
+          {poem.who}
         </button>
       </div>
-      <div id="poem-author-container" className="flex justify-center">
-        <p className="text-3xl mr-4 transition-all duration-300 hover:text-opacity-80">
-          <a href={`https://www.baidu.com/s?wd=${poem.from} ${poem.who || ""}`} target="_blank" rel="noopener noreferrer">
-            「{poem.from}」
-          </a>
-        </p>
-        {poem.who && (
-          <p className="flex align-items-center justify-center text-center text-2xl rounded-md px-2 py-0 custom-author-style transition-all duration-300 hover:opacity-80">
-            <a className="leading-normal" href={`https://www.baidu.com/s?wd=${poem.who}`} target="_blank" rel="noopener noreferrer">
-              {poem.who}
-            </a>
-          </p>
-        )}
-      </div>
-    </div>
+    </article>
   );
-} 
+}

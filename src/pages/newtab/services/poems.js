@@ -1,18 +1,17 @@
-import JSON_POEM from "sentences-bundle/sentences/i.json";
+import { LIBRARY, CATEGORIES } from "./library";
+export { CATEGORIES };
 
-/**
- * @typedef {Object} Poem
- * @property {string} title - 诗句内容
- * @property {string} from - 诗句来源
- * @property {string} who - 诗句作者
- */
+export function getRandomPoem(categories = CATEGORIES, previousId) {
+  const pool = LIBRARY.filter((poem) => categories.includes(poem.category));
+  const candidates = pool.filter((poem) => poem.id !== previousId);
+  const choices = candidates.length ? candidates : pool.length ? pool : LIBRARY;
+  return choices[Math.floor(Math.random() * choices.length)];
+}
 
-/**
- * 获取随机诗句
- * @returns {Poem} 返回一个随机的诗句对象
- */
-export function getRandomPoem() {
-  const randomIndex = Math.floor(Math.random() * JSON_POEM.length);
-  const { hitokoto: title, from, from_who: who } = JSON_POEM[randomIndex];
-  return { title, from, who };
+export function formatPoem(text) {
+  return text.replace(/([，。！？；])\s*/g, "$1\n").trim();
+}
+
+export function poemText(poem) {
+  return `${poem.title}\n——${poem.who}《${poem.from}》`;
 }

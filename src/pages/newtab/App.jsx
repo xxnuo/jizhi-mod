@@ -1,73 +1,331 @@
-import { POEM_MAXLINELENGTH } from "./services/constants";
-import { getRandomPoem } from "./services/poems";
-import { useState, useEffect } from "react";
-import "animate.css";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import "./App.css";
 import PoemDisplay from "./components/PoemDisplay";
-import SettingsPanel from "./components/SettingsPanel";
+import SettingsPanel, { Preferences } from "./components/SettingsPanel";
+import Overlay from "./components/Overlay";
 import { useTheme } from "./hooks/useTheme";
 import { useFont } from "./hooks/useFont";
 import { useVoice } from "./hooks/useVoice";
-import { useGuide } from "./hooks/useGuide";
+import { useLibrary } from "./hooks/useLibrary";
+import { getRandomPoem, poemText } from "./services/poems";
+import { LIBRARY } from "./services/library";
+import {
+  readPreferences,
+  writeStorage,
+  ENGINES,
+  backgroundColor,
+} from "./services/preferences";
 
 export default function App() {
   const { theme, toggleTheme } = useTheme();
   const { currentFont, toggleFont } = useFont();
-  const { isMuted, toggleMute, playVoice } = useVoice();
-  const [poem, setPoem] = useState(() => getRandomPoem());
-  const [isAnimating, setIsAnimating] = useState(true);
-
-  useGuide();
-
+  const [preferences, setPreferences] = useState(readPreferences);
+  const [poem, setPoem] = useState(() => getRandomPoem(preferences.categories));
+  const [panel, setPanel] = useState(null);
+  const [query, setQuery] = useState("");
+  const [notice, setNotice] = useState("");
+  const [exporting, setExporting] = useState(false);
+  const [tab, setTab] = useState("favorites");
+  const notify = useCallback((message) => setNotice(message), []);
+  const { isMuted, toggleMute, playVoice, stopVoice, status } =
+    useVoice(notify);
+  const { favorites, history, toggleFavorite } = useLibrary(poem, notify);
+  const [convert, setConvert] = useState(null);
   useEffect(() => {
-    let newTitle = poem.title;
-    if (!/^[A-Za-z]/.test(newTitle[0])) {
-      newTitle = newTitle
-        .replace(/[^\u4E00-\u9FA5\t\n\r]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-      if (newTitle.length >= POEM_MAXLINELENGTH) {
-        const lines = newTitle.split(/\s+/);
-        const result =
-          lines.length % 2 === 0
-            ? lines.reduce(
-                (acc, line, i) => {
-                  if (i % 2 === 0) {
-                    acc.push(line);
-                  } else {
-                    acc[acc.length - 1] = `${acc[acc.length - 1]} ${line}`;
-                  }
-                  return acc;
-                },
-                []
-              )
-            : lines;
-        newTitle = result.join("\n");
-      }
-    }
-    setPoem((prevPoem) => ({ ...prevPoem, title: newTitle }));
-    setIsAnimating(true);
-    const timer = setTimeout(() => setIsAnimating(false), 1000);
+    if (!preferences.traditional || convert) return;
+    let active = true;
+    import("./services/text")
+      .then(({ displayPoem }) => {
+        if (active) setConvert(() => displayPoem);
+      })
+      .catch(() => notify("繁体字典加载失败，请刷新重试"));
+    return () => {
+      active = false;
+    };
+  }, [preferences.traditional, convert, notify]);
+  const shown = useMemo(
+    () => (convert ? convert(poem, preferences.traditional) : poem),
+    [poem, preferences.traditional, convert],
+  );
+  const [dark, setDark] = useState(
+    () => window.matchMedia("(prefers-color-scheme: dark)").matches,
+  );
+  const [day, setDay] = useState(() => new Date());
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const change = () => setDark(media.matches);
+    media.addEventListener("change", change);
+    const timer = setInterval(() => setDay(new Date()), 60000);
+    document.title = "浮生梦";
+    return () => {
+      media.removeEventListener("change", change);
+      clearInterval(timer);
+    };
+  }, []);
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(""), 5000);
     return () => clearTimeout(timer);
-  }, [poem.title]);
+  }, [notice]);
+  useEffect(() => {
+    stopVoice();
+  }, [poem.id, preferences.traditional, stopVoice]);
 
-  const handleTitleClick = () => {
-    playVoice(poem.title);
-  };
+  const nextPoem = useCallback(() => {
+    setPoem((previous) => getRandomPoem(preferences.categories, previous.id));
+  }, [preferences.categories]);
+  const copy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(poemText(shown));
+      notify("已复制诗句及出处");
+    } catch {
+      notify("复制失败，请检查剪贴板权限");
+    }
+  }, [shown, notify]);
+  function changePreferences(patch) {
+    const next = { ...preferences, ...patch };
+    setPreferences(next);
+    if (!writeStorage("preferences", next))
+      notify("设置无法保存，浏览器存储空间不可用");
+    if (patch.categories && !patch.categories.includes(poem.category))
+      setPoem(getRandomPoem(patch.categories, poem.id));
+  }
+  useEffect(() => {
+    const keydown = (event) => {
+      if (
+        event.defaultPrevented ||
+        event.isComposing ||
+        event.repeat ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.altKey ||
+        panel ||
+        event.target.closest(
+          "input, textarea, select, button, a, [contenteditable], dialog",
+        )
+      )
+        return;
+      if (event.key === "Process" || event.keyCode === 229) {
+        setQuery("");
+        setPanel("search");
+        return;
+      }
+      const actions = {
+        " ": nextPoem,
+        f: toggleFont,
+        t: toggleTheme,
+        c: copy,
+        s: () => playVoice(shown.title),
+      };
+      const key = event.key.toLowerCase();
+      if (actions[key]) {
+        event.preventDefault();
+        actions[key]();
+      } else if (event.key === "/" || event.key.length === 1) {
+        event.preventDefault();
+        setQuery(event.key === "/" ? "" : event.key);
+        setPanel("search");
+      }
+    };
+    const composition = (event) => {
+      if (
+        !panel &&
+        !event.target.closest(
+          "input, textarea, select, button, [contenteditable], dialog",
+        ) &&
+        event.data
+      ) {
+        setQuery(event.data);
+        setPanel("search");
+      }
+    };
+    window.addEventListener("keydown", keydown);
+    window.addEventListener("compositionend", composition);
+    return () => {
+      window.removeEventListener("keydown", keydown);
+      window.removeEventListener("compositionend", composition);
+    };
+  }, [panel, nextPoem, toggleFont, toggleTheme, copy, playVoice, shown]);
 
+  async function download() {
+    setExporting(true);
+    try {
+      const { exportPoem } = await import("./services/export");
+      const app = document.getElementById("app");
+      const color = getComputedStyle(app);
+      await exportPoem(shown, currentFont, preferences.vertical, {
+        background: color.backgroundColor,
+        foreground: color.color,
+      });
+      notify("诗词卡片已导出");
+    } catch {
+      notify("导出失败，请稍后重试");
+    } finally {
+      setExporting(false);
+    }
+  }
+  const ids = tab === "favorites" ? favorites : history;
+  const background = backgroundColor(
+    preferences.background,
+    theme === "sync" ? dark : theme === "dark",
+    day,
+  );
   return (
-    <div id="app" className="custom-font" style={{ "--custom-font-name": currentFont }}>
-      <div className="min-h-screen flex items-center justify-center">
-        <PoemDisplay poem={poem} isAnimating={isAnimating} onTitleClick={handleTitleClick} />
-      </div>
-
+    <div
+      id="app"
+      className={`custom-font ${preferences.texture ? "paper-texture" : ""}`}
+      style={{
+        "--custom-font-name": currentFont,
+        ...(background ? { backgroundColor: background } : {}),
+      }}
+      onDoubleClick={(event) => {
+        if (
+          event.target === event.currentTarget ||
+          event.target.classList.contains("poem-stage")
+        )
+          nextPoem();
+      }}
+    >
+      <main className="poem-stage">
+        <PoemDisplay
+          poem={shown}
+          vertical={preferences.vertical}
+          onTitleClick={() => playVoice(shown.title)}
+          onDetails={() => setPanel("details")}
+        />
+      </main>
       <SettingsPanel
         theme={theme}
         onThemeToggle={toggleTheme}
         onFontToggle={toggleFont}
         isMuted={isMuted}
         onMuteToggle={toggleMute}
+        onNext={nextPoem}
+        onSearch={() => {
+          setQuery("");
+          setPanel("search");
+        }}
+        onFavorite={toggleFavorite}
+        favorite={favorites.includes(poem.id)}
+        onLibrary={() => setPanel("library")}
+        onSettings={() => setPanel("settings")}
+        onExport={download}
+        exporting={exporting}
+        onCopy={copy}
       />
+      <div className="notice" role="status">
+        {notice ||
+          (status === "loading"
+            ? "正在准备朗读，再按 S 可取消"
+            : status === "paused"
+              ? "朗读已暂停"
+              : status === "playing"
+                ? "正在朗读"
+                : "")}
+      </div>
+      {panel && (
+        <Overlay
+          key={panel}
+          title={
+            {
+              details: "全文与释义",
+              search: "搜索",
+              library: "收藏与历史",
+              settings: "设置",
+            }[panel]
+          }
+          onClose={() => setPanel(null)}
+        >
+          {panel === "settings" && (
+            <Preferences
+              preferences={preferences}
+              onChange={changePreferences}
+            />
+          )}
+          {panel === "details" && (
+            <section className="poem-details">
+              <h3>{shown.from}</h3>
+              <p>{shown.who}</p>
+              <p className="full-poem">{shown.full}</p>
+              <h3>白话释义</h3>
+              <p>{shown.meaning}</p>
+              <h3>作者背景</h3>
+              <p>{shown.bio}</p>
+            </section>
+          )}
+          {panel === "search" && (
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (query.trim())
+                  window.location.assign(
+                    ENGINES[preferences.engine] +
+                      encodeURIComponent(query.trim()),
+                  );
+              }}
+            >
+              <label htmlFor="search-input">
+                使用 {preferences.engine} 搜索
+              </label>
+              <input
+                autoFocus
+                id="search-input"
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="输入搜索内容"
+              />
+              <button type="submit" disabled={!query.trim()}>
+                搜索
+              </button>
+            </form>
+          )}
+          {panel === "library" && (
+            <section>
+              <div className="library-tabs" role="group" aria-label="切换列表">
+                <button
+                  aria-pressed={tab === "favorites"}
+                  onClick={() => setTab("favorites")}
+                >
+                  收藏
+                </button>
+                <button
+                  aria-pressed={tab === "history"}
+                  onClick={() => setTab("history")}
+                >
+                  历史
+                </button>
+              </div>
+              {!ids.length && <p>暂无收藏，遇到喜欢的诗句可点击工具栏收藏。</p>}
+              <ul className="library-list">
+                {ids.map((id) => {
+                  const entry = convert
+                    ? convert(
+                        LIBRARY.find((item) => item.id === id),
+                        preferences.traditional,
+                      )
+                    : LIBRARY.find((item) => item.id === id);
+                  return (
+                    <li key={id}>
+                      <button
+                        onClick={() => {
+                          setPoem(LIBRARY.find((item) => item.id === id));
+                          setPanel(null);
+                        }}
+                      >
+                        {entry.title}
+                        <small>
+                          {entry.who} · {entry.from}
+                        </small>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
+        </Overlay>
+      )}
     </div>
   );
 }

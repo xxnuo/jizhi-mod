@@ -1,45 +1,171 @@
-import { IoMoonOutline as MoonIcon, IoSunnyOutline as SunIcon } from "react-icons/io5";
-import { MdTimelapse as SyncIcon } from "react-icons/md";
-import { BiFontFamily as FontIcon } from "react-icons/bi";
-import { IoVolumeHighOutline as VolumeOnIcon, IoVolumeMuteOutline as VolumeOffIcon } from "react-icons/io5";
+import {
+  IoMoonOutline,
+  IoSunnyOutline,
+  IoVolumeHighOutline,
+  IoVolumeMuteOutline,
+  IoSettingsOutline,
+  IoSearchOutline,
+  IoHeartOutline,
+  IoHeart,
+  IoDownloadOutline,
+  IoRefreshOutline,
+  IoBookmarksOutline,
+  IoCopyOutline,
+} from "react-icons/io5";
+import { MdTimelapse } from "react-icons/md";
+import { BiFontFamily } from "react-icons/bi";
+import { BACKGROUNDS, ENGINES } from "../services/preferences";
+import { CATEGORIES } from "../services/poems";
 
-export default function SettingsPanel({ theme, onThemeToggle, onFontToggle, isMuted, onMuteToggle }) {
+export function Preferences({ preferences, onChange }) {
   return (
-    <div className="fixed bottom-6 left-6 z-50 flex">
-      <div className="tooltip" data-tip={`${theme === "sync" ? "系统主题" : theme === "dark" ? "深色主题" : "浅色主题"}`}>
-        <button
-          id="theme-toggle"
-          className="custom-settings-button-style transition-all duration-300 hover:scale-110"
-          onClick={onThemeToggle}
-          type="button"
+    <div className="preferences">
+      <label>
+        <span>竖排排版</span>
+        <input
+          type="checkbox"
+          checked={preferences.vertical}
+          onChange={(event) => onChange({ vertical: event.target.checked })}
+        />
+      </label>
+      <label>
+        <span>繁体显示</span>
+        <input
+          type="checkbox"
+          checked={preferences.traditional}
+          onChange={(event) => onChange({ traditional: event.target.checked })}
+        />
+      </label>
+      <label>
+        <span>默认搜索引擎</span>
+        <select
+          value={preferences.engine}
+          onChange={(event) => onChange({ engine: event.target.value })}
         >
-          {theme === "light" && <SunIcon className="swap-on fill-current w-8 h-8" />}
-          {theme === "dark" && <MoonIcon className="swap-on fill-current w-8 h-8" />}
-          {theme === "sync" && <SyncIcon className="swap-on fill-current w-8 h-8" />}
-        </button>
-      </div>
-
-      <div className="ml-4" />
-      <div className="tooltip" data-tip="切换字体">
-        <div id="font-toggle" className="custom-settings-button-style transition-all duration-300 hover:scale-110">
-          <label className="swap">
-            <input type="checkbox" onClick={onFontToggle} />
-            <FontIcon className="swap-on fill-current w-8 h-8" />
-            <FontIcon className="swap-off fill-current w-8 h-8" />
+          {Object.keys(ENGINES).map((name) => (
+            <option key={name}>{name}</option>
+          ))}
+        </select>
+      </label>
+      <label>
+        <span>背景</span>
+        <select
+          aria-label="背景"
+          value={preferences.background}
+          onChange={(event) => onChange({ background: event.target.value })}
+        >
+          {Object.entries(BACKGROUNDS).map(([value, color]) => (
+            <option key={value} value={value}>
+              {color.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label>
+        <span>宣纸纹理</span>
+        <input
+          type="checkbox"
+          checked={preferences.texture}
+          onChange={(event) => onChange({ texture: event.target.checked })}
+        />
+      </label>
+      <fieldset>
+        <legend>词库偏好（至少保留一项）</legend>
+        {CATEGORIES.map((category) => (
+          <label key={category}>
+            <span>{category}</span>
+            <input
+              type="checkbox"
+              checked={preferences.categories.includes(category)}
+              disabled={
+                preferences.categories.length === 1 &&
+                preferences.categories.includes(category)
+              }
+              onChange={(event) =>
+                onChange({
+                  categories: event.target.checked
+                    ? [...preferences.categories, category]
+                    : preferences.categories.filter(
+                        (value) => value !== category,
+                      ),
+                })
+              }
+            />
           </label>
-        </div>
-      </div>
-
-      <div className="ml-4" />
-      <div className="tooltip" data-tip="静音">
-        <div id="mute-toggle" className="custom-settings-button-style transition-all duration-300 hover:scale-110">
-          <label className="swap">
-            <input type="checkbox" checked={isMuted} onChange={onMuteToggle} />
-            <VolumeOffIcon className="swap-on fill-current w-8 h-8" />
-            <VolumeOnIcon className="swap-off fill-current w-8 h-8" />
-          </label>
-        </div>
-      </div>
+        ))}
+      </fieldset>
+      <p className="settings-help">
+        空格 / 双击空白：换一句；F：字体；T：主题；C：复制；S：朗读 / 暂停；/
+        或直接输入：搜索；Esc：关闭。
+      </p>
+      <p className="settings-help">
+        全文与释义来自内置精选词库。离线朗读需要系统已安装中文语音包。
+      </p>
     </div>
   );
-} 
+}
+
+export default function SettingsPanel({
+  theme,
+  onThemeToggle,
+  onFontToggle,
+  isMuted,
+  onMuteToggle,
+  onNext,
+  onSearch,
+  onFavorite,
+  favorite,
+  onLibrary,
+  onSettings,
+  onExport,
+  exporting,
+  onCopy,
+}) {
+  const ThemeIcon =
+    theme === "light"
+      ? IoSunnyOutline
+      : theme === "dark"
+        ? IoMoonOutline
+        : MdTimelapse;
+  const VolumeIcon = isMuted ? IoVolumeMuteOutline : IoVolumeHighOutline;
+  const buttons = [
+    ["theme-toggle", "切换主题（T）", ThemeIcon, onThemeToggle],
+    ["font-toggle", "切换字体（F）", BiFontFamily, onFontToggle],
+    ["mute-toggle", isMuted ? "取消静音" : "静音", VolumeIcon, onMuteToggle],
+    ["next-poem", "换一句（空格）", IoRefreshOutline, onNext],
+    ["search", "搜索（/）", IoSearchOutline, onSearch],
+    [
+      "favorite",
+      favorite ? "取消收藏" : "收藏",
+      favorite ? IoHeart : IoHeartOutline,
+      onFavorite,
+    ],
+    ["library", "收藏与历史", IoBookmarksOutline, onLibrary],
+    ["copy", "复制诗句（C）", IoCopyOutline, onCopy],
+    [
+      "export",
+      exporting ? "正在导出" : "导出诗词卡片",
+      IoDownloadOutline,
+      onExport,
+    ],
+    ["settings", "设置", IoSettingsOutline, onSettings],
+  ];
+  return (
+    <nav className="poem-toolbar" aria-label="诗词工具栏">
+      {buttons.map(([id, label, Icon, action]) => (
+        <button
+          key={id}
+          id={id}
+          type="button"
+          aria-label={label}
+          title={label}
+          disabled={id === "export" && exporting}
+          aria-pressed={id === "favorite" ? favorite : undefined}
+          onClick={action}
+        >
+          <Icon aria-hidden="true" />
+        </button>
+      ))}
+    </nav>
+  );
+}

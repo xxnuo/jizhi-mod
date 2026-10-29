@@ -1,81 +1,276 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: cupcake --default, halloween --prefersdark;
+  themes:
+    cupcake --default,
+    halloween --prefersdark;
   logs: false;
 }
-
 @import "../../../assets/fonts/fonts.css";
-
 
 :root {
   --custom-font-name: 楷体;
 }
-
-/* 使用CSS变量来设置字体 */
+body {
+  margin: 0;
+}
+button,
+select,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 5px;
+}
 .custom-font {
   font-family: var(--custom-font-name), 楷体, serif;
 }
-
-/* 引导页样式 */
-
-.driver-popover,
-.driver-popover button {
-  /* 直接复制 daisyui 主题最终的样式颜色，跟随主题自动切换颜色 */
-  background-color: var(--fallback-b1, oklch(var(--b1) / 1));
-  color: var(--fallback-bc, oklch(var(--bc) / 1));
+#app {
+  min-height: 100dvh;
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  isolation: isolate;
 }
-
-.driver-popover .driver-popover-title {
-  /* text-xl */
-  font-size: 1.25rem; /* 20px */
-  line-height: 1.75rem; /* 28px */
+.poem-stage {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem 7rem;
 }
-.driver-popover .driver-popover-description {
-  /* text-lg */
-  font-size: 1.125rem; /* 18px */
-  line-height: 1.75rem; /* 28px */
+.poem {
+  max-width: 100%;
+  text-align: center;
+  animation: appear 0.35s ease-out;
 }
-
-.driver-popover .driver-popover-progress-text {
-  /* text-base	 */
-  font-size: 1rem; /* 16px */
-  line-height: 1.5rem; /* 24px */
+.poem-title {
+  white-space: pre-wrap;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  overflow-wrap: anywhere;
 }
-
-.driver-popover button {
-  /* text-sm */
-  font-size: 0.875rem; /* 14px */
-  line-height: 1.25rem; /* 20px */
-  text-shadow: none;
+.poem-source {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: clamp(1rem, 2.6vw, 1.8rem);
 }
-.driver-popover button:hover {
-  background-color: var(--fallback-b1, oklch(var(--b1) / 1));
-}
-
-.driver-popover .driver-popover-title,
-.driver-popover .driver-popover-description,
-.driver-popover .driver-popover-progress-text,
-.driver-popover button {
-  font-family: var(--custom-font-name), sans-serif;
-}
-
-/* 诗词作者名样式 */
 .custom-author-style {
-  background-color: #c92e2e;
+  background: #a52e2e;
   color: #fff;
 }
-
-@media (prefers-color-scheme: dark) {
-  .custom-author-style {
-    background-color: #a50a0a;
-    color: #fff;
+.author-seal {
+  border-radius: 2px;
+  padding: 0.1em 0.35em;
+  font-size: 0.85em;
+}
+.poem-vertical {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 2rem;
+  overflow-x: auto;
+}
+.poem-vertical .poem-title {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  max-height: 68dvh;
+  margin: 0;
+  text-align: start;
+}
+.poem-vertical .poem-source {
+  writing-mode: vertical-rl;
+  flex-direction: row;
+  font-size: 1.4rem;
+}
+.poem-vertical .author-seal {
+  letter-spacing: 0.15em;
+}
+.poem-toolbar {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  width: fit-content;
+  max-width: calc(100% - 3rem);
+  z-index: 2;
+}
+.poem-toolbar button {
+  opacity: 0.25;
+  transition: opacity 0.2s;
+  padding: 0.2rem;
+}
+.poem-toolbar button:hover,
+.poem-toolbar button:focus-visible,
+.poem-toolbar button[aria-pressed="true"] {
+  opacity: 1;
+}
+.poem-toolbar svg {
+  width: 1.65rem;
+  height: 1.65rem;
+}
+.paper-texture::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.15;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath filter='url(%23n)' opacity='.4' d='M0 0h180v180H0z'/%3E%3C/svg%3E");
+}
+.notice {
+  position: fixed;
+  bottom: 5rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  pointer-events: none;
+  font-size: 0.9rem;
+}
+.poem-dialog {
+  margin: auto;
+  width: min(40rem, calc(100% - 2rem));
+  max-height: 85dvh;
+  overflow: auto;
+  padding: 1.8rem;
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+}
+.poem-dialog::backdrop {
+  background: #0005;
+  backdrop-filter: blur(5px);
+}
+.poem-dialog header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+.poem-dialog h2,
+.poem-dialog h3 {
+  font-size: 1.2rem;
+}
+.poem-dialog h3 {
+  margin: 1rem 0 0.5rem;
+}
+.poem-dialog p {
+  line-height: 1.9;
+}
+.full-poem {
+  white-space: pre-wrap;
+}
+.preferences label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.8rem 0;
+}
+.preferences fieldset {
+  margin-top: 1.5rem;
+}
+.preferences select {
+  max-width: 55%;
+}
+.poem-dialog select,
+.poem-dialog input[type="search"] {
+  background: transparent;
+  border-bottom: 1px solid currentColor;
+  padding: 0.3rem;
+}
+.poem-dialog option {
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+}
+.settings-help {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-top: 1.5rem;
+}
+.poem-dialog form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+.poem-dialog form label {
+  width: 100%;
+}
+.poem-dialog input[type="search"] {
+  min-width: 0;
+  flex: 1;
+}
+.library-tabs {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+.library-tabs [aria-pressed="true"] {
+  border-bottom: 1px solid currentColor;
+}
+.library-list {
+  list-style: none;
+  padding: 0;
+}
+.library-list li {
+  border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+}
+.library-list button {
+  text-align: start;
+  width: 100%;
+  padding: 1rem 0;
+}
+.library-list small {
+  display: block;
+  opacity: 0.65;
+  margin-top: 0.3rem;
+}
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
-
-.custom-settings-button-style {
-  opacity: 10%;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before {
+    animation: none !important;
+    transition: none !important;
+  }
 }
-
-.custom-settings-button-style:hover {
-  opacity: 100%;
+@media (max-width: 480px) {
+  .poem-stage {
+    padding: 3rem 1rem 8rem;
+  }
+  .poem-toolbar {
+    gap: 0.7rem;
+    bottom: 1rem;
+    left: 1rem;
+  }
+  .poem-dialog {
+    padding: 1.2rem;
+  }
+  .poem-vertical {
+    gap: 1rem;
+  }
+  .poem-vertical .poem-source {
+    font-size: 1rem;
+  }
 }
