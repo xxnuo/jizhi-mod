@@ -178,7 +178,7 @@ select:focus-visible {
   height: 1.65rem;
 }
 .toolbar-label {
-  font-size: var(--source-font-size);
+  font-size: 0.7rem;
   line-height: 1.4;
   white-space: nowrap;
 }

@@ -267,12 +267,9 @@ test("横排菜单标题在下，竖排菜单标题在右，小屏可滚动", as
       "flex-direction",
       vertical ? "column" : "row",
     );
-    const sourceSize = await page
-      .locator(".source-title")
-      .evaluate((element) => getComputedStyle(element).fontSize);
     await expect(page.locator("#theme-toggle .toolbar-label")).toHaveCSS(
       "font-size",
-      sourceSize,
+      "11.2px",
     );
     const first = page.locator("#theme-toggle");
     const icon = await first.locator("svg").boundingBox();
@@ -283,12 +280,9 @@ test("横排菜单标题在下，竖排菜单标题在右，小屏可滚动", as
       path: `test-results/menu-${vertical ? "vertical" : "horizontal"}.png`,
     });
     await page.setViewportSize({ width: 375, height: 667 });
-    const mobileSourceSize = await page
-      .locator(".source-title")
-      .evaluate((element) => getComputedStyle(element).fontSize);
     await expect(page.locator("#theme-toggle .toolbar-label")).toHaveCSS(
       "font-size",
-      mobileSourceSize,
+      "11.2px",
     );
     const menu = page.locator(".toolbar-actions");
     const box = await menu.boundingBox();
