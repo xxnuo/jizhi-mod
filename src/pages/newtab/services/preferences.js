@@ -1,5 +1,3 @@
-import { CATEGORIES } from "./poems";
-
 export const ENGINES = {
   Google: "https://www.google.com/search?q=",
   百度: "https://www.baidu.com/s?wd=",
@@ -19,7 +17,6 @@ export const DEFAULTS = {
   engine: "Bing",
   background: "theme",
   texture: true,
-  categories: CATEGORIES,
 };
 export function readStorage(key, fallback) {
   try {
@@ -38,9 +35,6 @@ export function writeStorage(key, value) {
 }
 export function readPreferences() {
   const value = readStorage("preferences", {});
-  const categories = Array.isArray(value?.categories)
-    ? CATEGORIES.filter((category) => value.categories.includes(category))
-    : CATEGORIES;
   return {
     vertical: value?.vertical === true,
     texture:
@@ -51,7 +45,6 @@ export function readPreferences() {
     background: Object.hasOwn(BACKGROUNDS, value?.background)
       ? value.background
       : DEFAULTS.background,
-    categories: categories.length ? categories : CATEGORIES,
   };
 }
 export function backgroundColor(name, dark, date = new Date()) {

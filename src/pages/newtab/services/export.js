@@ -56,11 +56,13 @@ export async function exportPoem(poem, font, vertical, colors) {
   context.textAlign = "center";
   context.font = `54px "${font}", "LXGW WenKai Light", serif`;
   drawText(`「${poem.from}」`, 1080, 2250, 1800);
-  const sealWidth = Math.max(100, context.measureText(poem.who).width + 48);
-  context.fillStyle = "#a52e2e";
-  context.fillRect(1080 - sealWidth / 2, 2370, sealWidth, 90);
-  context.fillStyle = "#fff";
-  drawText(poem.who, 1080, 2415);
+  if (poem.who) {
+    const sealWidth = Math.max(100, context.measureText(poem.who).width + 48);
+    context.fillStyle = "#a52e2e";
+    context.fillRect(1080 - sealWidth / 2, 2370, sealWidth, 90);
+    context.fillStyle = "#fff";
+    drawText(poem.who, 1080, 2415);
+  }
   const blob = await new Promise((resolve) =>
     canvas.toBlob(resolve, "image/png"),
   );

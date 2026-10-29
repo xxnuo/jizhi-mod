@@ -20,7 +20,7 @@ export default function App() {
   const { theme, toggleTheme } = useTheme();
   const { currentFont, toggleFont } = useFont();
   const [preferences, setPreferences] = useState(readPreferences);
-  const [poem, setPoem] = useState(() => getRandomPoem(preferences.categories));
+  const [poem, setPoem] = useState(() => getRandomPoem());
   const [panel, setPanel] = useState(null);
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
@@ -55,8 +55,8 @@ export default function App() {
   }, [poem.id, stopVoice]);
 
   const nextPoem = useCallback(() => {
-    setPoem((previous) => getRandomPoem(preferences.categories, previous.id));
-  }, [preferences.categories]);
+    setPoem((previous) => getRandomPoem(previous.id));
+  }, []);
   const copy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(poemText(poem));
@@ -70,8 +70,6 @@ export default function App() {
     setPreferences(next);
     if (!writeStorage("preferences", next))
       notify("设置无法保存，浏览器存储空间不可用");
-    if (patch.categories && !patch.categories.includes(poem.category))
-      setPoem(getRandomPoem(patch.categories, poem.id));
   }
   useEffect(() => {
     const keydown = (event) => {
@@ -147,7 +145,9 @@ export default function App() {
       setExporting(false);
     }
   }
-  const ids = tab === "favorites" ? favorites : history;
+  const ids = (tab === "favorites" ? favorites : history).filter((id) =>
+    LIBRARY.some((entry) => entry.id === id),
+  );
   const background = backgroundColor(
     preferences.background,
     theme === "sync" ? dark : theme === "dark",
@@ -174,7 +174,7 @@ export default function App() {
           poem={poem}
           vertical={preferences.vertical}
           onTitleClick={() => playVoice(poem.title)}
-          onDetails={() => setPanel("details")}
+          engine={preferences.engine}
         />
       </main>
       <SettingsPanel
@@ -211,7 +211,6 @@ export default function App() {
           key={panel}
           title={
             {
-              details: "全文与释义",
               search: "搜索",
               library: "收藏与历史",
               settings: "设置",
@@ -224,17 +223,6 @@ export default function App() {
               preferences={preferences}
               onChange={changePreferences}
             />
-          )}
-          {panel === "details" && (
-            <section className="poem-details">
-              <h3>{poem.from}</h3>
-              <p>{poem.who}</p>
-              <p className="full-poem">{poem.full}</p>
-              <h3>白话释义</h3>
-              <p>{poem.meaning}</p>
-              <h3>作者背景</h3>
-              <p>{poem.bio}</p>
-            </section>
           )}
           {panel === "search" && (
             <form

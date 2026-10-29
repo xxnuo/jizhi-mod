@@ -2,7 +2,7 @@ const { tool } = require("./helpers");
 const { test, expect, chromium } = require("@playwright/test");
 const path = require("node:path");
 
-test("真实 MV3 扩展：后台消息、离线全文、收藏、七种字体与导出", async () => {
+test("真实 MV3 扩展：后台消息、离线词库、收藏、七种字体与导出", async () => {
   const extension = path.resolve(".output/chrome-mv3");
   const context = await chromium.launchPersistentContext("", {
     channel: "chromium",
@@ -50,9 +50,9 @@ test("真实 MV3 扩展：后台消息、离线全文、收藏、七种字体与
     );
     expect(duration).toBeGreaterThan(0);
     await context.setOffline(true);
-    await page.getByRole("button", { name: "查看全文与释义" }).click();
-    await expect(page.getByRole("heading", { name: "白话释义" })).toBeVisible();
-    await page.keyboard.press("Escape");
+    await expect(
+      page.getByRole("link", { name: "搜索诗词出处" }),
+    ).toHaveAttribute("href", /^https:\/\/www.bing.com\/search/);
     await tool(page, "收藏");
     await page.reload();
     await tool(page, "收藏与历史");

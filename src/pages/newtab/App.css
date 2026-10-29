@@ -87,6 +87,8 @@ select:focus-visible {
   writing-mode: vertical-rl;
   text-orientation: upright;
   max-height: 60dvh;
+  min-width: 0;
+  overflow: auto;
   margin: 0;
   text-align: start;
   line-height: 1.9;
@@ -207,9 +209,6 @@ select:focus-visible {
 }
 .poem-dialog p {
   line-height: 1.9;
-}
-.full-poem {
-  white-space: pre-wrap;
 }
 .preferences label {
   display: flex;

@@ -1,3 +1,4 @@
+const SENTENCES = require("sentences-bundle/sentences/i.json");
 const { tool } = require("./helpers");
 const { test, expect } = require("@playwright/test");
 
@@ -12,23 +13,32 @@ async function close(page) {
   await page.getByRole("button", { name: "关闭", exact: true }).click();
 }
 
-test("离线全文、释义、作者背景；模态框关闭恢复焦点", async ({
-  page,
-  context,
-}) => {
-  await context.setOffline(true);
-  await page.getByRole("button", { name: "查看全文与释义" }).click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog.getByRole("heading", { name: "白话释义" })).toBeVisible();
-  await expect(dialog.getByRole("heading", { name: "作者背景" })).toBeVisible();
-  expect(
-    (await dialog.locator(".full-poem").innerText()).length,
-  ).toBeGreaterThan(15);
-  await page.keyboard.press("Escape");
-  await expect(dialog).not.toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "查看全文与释义" }),
-  ).toBeFocused();
+test("点击出处和作者直接搜索，保留完整原始语句库", async ({ page }) => {
+  const entry = SENTENCES.find((entry) => entry.from_who);
+  await page.evaluate(
+    (id) => localStorage.setItem("favorites", JSON.stringify([id])),
+    entry.uuid,
+  );
+  await page.reload();
+  await tool(page, "收藏与历史");
+  await page.locator(".library-list button").click();
+  await page.route("https://**/*", (route) =>
+    route.fulfill({ body: "搜索结果" }),
+  );
+  for (const [label, query] of [
+    ["搜索诗词出处", `${entry.from} ${entry.from_who}`],
+    ["搜索作者", entry.from_who],
+  ]) {
+    const link = page.getByRole("link", { name: label });
+    await expect(link).toHaveAttribute("target", "_blank");
+    const opened = page.waitForEvent("popup");
+    await link.click();
+    const popup = await opened;
+    await popup.waitForLoadState();
+    expect(new URL(popup.url()).searchParams.get("q")).toBe(query);
+    await popup.close();
+  }
+  await expect(page.getByText("白话释义", { exact: true })).toHaveCount(0);
 });
 
 test("竖排、背景纹理与设置持久化", async ({ page }) => {
@@ -80,20 +90,6 @@ test("换句、字体主题快捷键、空白双击；收藏历史恢复", async
   expect(await page.locator(".library-list li").count()).toBeGreaterThanOrEqual(
     2,
   );
-});
-
-test("偏好过滤不允许空选，筛选后换句始终属于该类", async ({ page }) => {
-  await settings(page);
-  for (const category of ["宋词", "诗经", "先秦散文", "现代文学"])
-    await page.getByLabel(category, { exact: true }).uncheck();
-  await expect(page.getByLabel("唐诗", { exact: true })).toBeDisabled();
-  await close(page);
-  for (let index = 0; index < 8; index++) {
-    await page.keyboard.press("Space");
-    await expect(page.getByRole("button", { name: "查看作者背景" })).toHaveText(
-      /李白|孟浩然|王维|王之涣/,
-    );
-  }
 });
 
 test("搜索键入呼出，输入区不触发快捷键，四种搜索引擎编码查询", async ({
@@ -183,9 +179,9 @@ test("复制快捷键、朗读降级提示和输入法呼出", async ({ page, co
   await expect(page.getByRole("status")).toHaveText("已复制诗句及出处");
   const clipboard = await page.evaluate(() => navigator.clipboard.readText());
   expect(clipboard).toContain("——");
-  expect(clipboard).toContain(
-    await page.getByRole("button", { name: "查看作者背景" }).innerText(),
-  );
+  const author = page.getByRole("link", { name: "搜索作者" });
+  if (await author.count())
+    expect(clipboard).toContain(await author.innerText());
   await context.setOffline(true);
   await page.keyboard.press("s");
   await expect(page.getByRole("status")).toContainText(/正在朗读|中文语音/);
@@ -251,10 +247,16 @@ test("工具栏默认收起，悬停、点击、键盘都能展开及收起", as
 });
 
 test("长出处和长作者的竖排布局，小屏仍完整显示", async ({ page }) => {
-  await page.evaluate(() => {
-    localStorage.setItem("preferences", JSON.stringify({ vertical: true }));
-    localStorage.setItem("favorites", JSON.stringify(["tianchou", "mengzi"]));
-  });
+  const entries = SENTENCES.filter((entry) => entry.from_who)
+    .sort((a, b) => b.from_who.length - a.from_who.length)
+    .slice(0, 2);
+  await page.evaluate(
+    (ids) => {
+      localStorage.setItem("preferences", JSON.stringify({ vertical: true }));
+      localStorage.setItem("favorites", JSON.stringify(ids));
+    },
+    entries.map((entry) => entry.uuid),
+  );
   await page.reload();
   await page.setViewportSize({ width: 375, height: 667 });
   for (const index of [0, 1]) {

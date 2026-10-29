@@ -17,7 +17,6 @@ import {
 import { MdTimelapse } from "react-icons/md";
 import { BiFontFamily } from "react-icons/bi";
 import { BACKGROUNDS, ENGINES } from "../services/preferences";
-import { CATEGORIES } from "../services/poems";
 
 export function Preferences({ preferences, onChange }) {
   return (
@@ -63,38 +62,12 @@ export function Preferences({ preferences, onChange }) {
           onChange={(event) => onChange({ texture: event.target.checked })}
         />
       </label>
-      <fieldset>
-        <legend>词库偏好（至少保留一项）</legend>
-        {CATEGORIES.map((category) => (
-          <label key={category}>
-            <span>{category}</span>
-            <input
-              type="checkbox"
-              checked={preferences.categories.includes(category)}
-              disabled={
-                preferences.categories.length === 1 &&
-                preferences.categories.includes(category)
-              }
-              onChange={(event) =>
-                onChange({
-                  categories: event.target.checked
-                    ? [...preferences.categories, category]
-                    : preferences.categories.filter(
-                        (value) => value !== category,
-                      ),
-                })
-              }
-            />
-          </label>
-        ))}
-      </fieldset>
+
       <p className="settings-help">
         空格 / 双击空白：换一句；F：字体；T：主题；C：复制；S：朗读 / 暂停；/
         或直接输入：搜索；Esc：关闭。
       </p>
-      <p className="settings-help">
-        全文与释义来自内置精选词库。离线朗读需要系统已安装中文语音包。
-      </p>
+      <p className="settings-help">离线朗读需要系统已安装中文语音包。</p>
     </div>
   );
 }

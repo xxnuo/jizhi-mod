@@ -1,11 +1,7 @@
+import { ENGINES } from "../services/preferences";
 import { formatPoem } from "../services/poems";
 
-export default function PoemDisplay({
-  poem,
-  vertical,
-  onTitleClick,
-  onDetails,
-}) {
+export default function PoemDisplay({ poem, vertical, onTitleClick, engine }) {
   return (
     <article
       key={poem.id}
@@ -22,22 +18,29 @@ export default function PoemDisplay({
         {formatPoem(poem.title)}
       </button>
       <div id="poem-author-container" className="poem-source">
-        <button
-          type="button"
+        <a
+          href={
+            ENGINES[engine] +
+            encodeURIComponent(`${poem.from} ${poem.who}`.trim())
+          }
+          target="_blank"
+          rel="noopener noreferrer"
           className="source-title"
-          onClick={onDetails}
-          aria-label="查看全文与释义"
+          aria-label="搜索诗词出处"
         >
           {vertical ? poem.from : `「${poem.from}」`}
-        </button>
-        <button
-          type="button"
-          onClick={onDetails}
-          className="custom-author-style author-seal"
-          aria-label="查看作者背景"
-        >
-          {poem.who}
-        </button>
+        </a>
+        {poem.who && (
+          <a
+            href={ENGINES[engine] + encodeURIComponent(poem.who)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="custom-author-style author-seal"
+            aria-label="搜索作者"
+          >
+            {poem.who}
+          </a>
+        )}
       </div>
     </article>
   );

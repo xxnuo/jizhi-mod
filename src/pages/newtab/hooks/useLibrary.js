@@ -5,9 +5,7 @@ import { readStorage, writeStorage } from "../services/preferences";
 function readIds(key, limit) {
   const ids = readStorage(key, []);
   return Array.isArray(ids)
-    ? [...new Set(ids)]
-        .filter((id) => LIBRARY.some((poem) => poem.id === id))
-        .slice(0, limit)
+    ? [...new Set(ids)].filter((id) => typeof id === "string").slice(0, limit)
     : [];
 }
 export function useLibrary(poem, onError) {

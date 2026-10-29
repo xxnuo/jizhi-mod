@@ -1,9 +1,6 @@
+import SENTENCES from "sentences-bundle/sentences/i.json";
 import { beforeEach, expect, test, vi } from "vitest";
-import {
-  getRandomPoem,
-  formatPoem,
-  CATEGORIES,
-} from "../src/pages/newtab/services/poems";
+import { getRandomPoem, formatPoem } from "../src/pages/newtab/services/poems";
 import { LIBRARY } from "../src/pages/newtab/services/library";
 import {
   readPreferences,
@@ -17,21 +14,19 @@ beforeEach(() => {
   localStorage.clear();
   vi.restoreAllMocks();
 });
-test("每类均有完整离线内容，随机结果遵守偏好且避免连续重复", () => {
-  expect(new Set(LIBRARY.map((poem) => poem.id)).size).toBe(LIBRARY.length);
-  for (const category of CATEGORIES) {
-    const entries = LIBRARY.filter((poem) => poem.category === category);
-    expect(entries.length).toBeGreaterThanOrEqual(2);
-    for (const poem of entries)
-      for (const key of ["title", "from", "who", "full", "meaning", "bio"])
-        expect(poem[key].trim()).not.toBe("");
-    for (let index = 0; index < 30; index++) {
-      const poem = getRandomPoem([category], entries[0].id);
-      expect(poem.category).toBe(category);
-      expect(poem.id).not.toBe(entries[0].id);
-    }
-  }
-  expect(getRandomPoem([])).toBeTruthy();
+test("原始词库逐条保留，不替换、不截断正文和出处", () => {
+  expect(LIBRARY).toHaveLength(SENTENCES.length);
+  expect(LIBRARY.length).toBeGreaterThan(600);
+  SENTENCES.forEach((entry, index) => {
+    expect(LIBRARY[index]).toEqual({
+      id: entry.uuid || String(entry.id),
+      title: entry.hitokoto,
+      from: entry.from,
+      who: entry.from_who || "",
+    });
+  });
+  for (const entry of LIBRARY)
+    expect(getRandomPoem(entry.id).id).not.toBe(entry.id);
 });
 test("损坏和越界设置安全回退，存储失败不抛错", () => {
   localStorage.setItem("preferences", "{");
@@ -46,7 +41,6 @@ test("损坏和越界设置安全回退，存储失败不抛错", () => {
     }),
   );
   expect(readPreferences()).toMatchObject({
-    categories: CATEGORIES,
     engine: "Bing",
     background: "theme",
     vertical: false,
@@ -57,7 +51,9 @@ test("损坏和越界设置安全回退，存储失败不抛错", () => {
   expect(writeStorage("favorites", [])).toBe(false);
 });
 test("复制保留原文及出处，排版不丢失标点", () => {
-  expect(poemText(LIBRARY[0])).toBe(`${LIBRARY[0].title}\n——李白《静夜思》`);
+  expect(poemText(LIBRARY[0])).toBe(
+    `${LIBRARY[0].title}\n——${LIBRARY[0].who || "佚名"}《${LIBRARY[0].from}》`,
+  );
   expect(formatPoem("知否，知否？应是绿肥红瘦。")).toBe(
     "知否，\n知否？\n应是绿肥红瘦。",
   );
