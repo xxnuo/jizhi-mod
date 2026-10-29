@@ -18,6 +18,143 @@ async function close(page) {
   await page.getByRole("button", { name: "关闭", exact: true }).click();
 }
 
+test("分享卡片可单独切换横竖排版和三档边距，重新打开跟随页面默认", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
+  const entry = SENTENCES.find(
+    (entry) => entry.from === "将进酒" && entry.from_who === "李白",
+  );
+  await page.evaluate(
+    (id) => localStorage.setItem("favorites", JSON.stringify([id])),
+    entry.uuid,
+  );
+  await page.reload();
+  await tool(page, "收藏与历史");
+  await page.locator(".library-list button").click();
+  await settings(page);
+  await selectBackground(page, "yuebai");
+  await page.getByLabel("宣纸纹理").uncheck();
+  await selectDecoration(page, "国画配图", "none");
+  await selectDecoration(page, "画面边饰", "none");
+  await close(page);
+  const dialog = page.getByRole("dialog", {
+    name: "选择卡片比例",
+    exact: true,
+  });
+  for (const vertical of [false, true]) {
+    const sizes = [];
+    for (const margin of ["窄", "适中", "宽"]) {
+      await tool(page, "导出诗词卡片");
+      await expect(
+        dialog.getByRole("radio", { name: "横排", exact: true }),
+      ).toBeChecked();
+      await expect(
+        dialog.getByRole("radio", { name: "适中", exact: true }),
+      ).toBeChecked();
+      await dialog
+        .getByRole("radio", { name: vertical ? "竖排" : "横排", exact: true })
+        .check();
+      await dialog.getByRole("radio", { name: margin, exact: true }).check();
+      if (vertical && margin === "宽")
+        await page.screenshot({
+          path: "test-results/card-options-desktop.png",
+        });
+      const downloaded = page.waitForEvent("download");
+      await dialog.locator('button[value="4:3"]').click();
+      const file = await downloaded;
+      const data = require("node:fs").readFileSync(await file.path());
+      expect(data.readUInt32BE(16)).toBe(2880);
+      expect(data.readUInt32BE(20)).toBe(2160);
+      await file.saveAs(
+        `test-results/card-spacing-${vertical ? "vertical" : "horizontal"}-${margin}.png`,
+      );
+      const size = await page.evaluate(async (base64) => {
+        const image = new Image();
+        image.src = `data:image/png;base64,${base64}`;
+        await image.decode();
+        const canvas = document.createElement("canvas");
+        canvas.width = 288;
+        canvas.height = 216;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(image, 0, 0, 288, 216);
+        const d = ctx.getImageData(0, 0, 288, 216).data;
+        let left = 288,
+          right = -1,
+          top = 216,
+          bottom = -1;
+        let redLeft = 288,
+          redRight = -1,
+          redTop = 216,
+          redBottom = -1;
+        for (let y = 0; y < 216; y++)
+          for (let x = 0; x < 288; x++) {
+            const i = (y * 288 + x) * 4;
+            if (d[i] !== d[0] || d[i + 1] !== d[1] || d[i + 2] !== d[2]) {
+              left = Math.min(left, x);
+              right = Math.max(right, x);
+              top = Math.min(top, y);
+              bottom = Math.max(bottom, y);
+            }
+            if (d[i] > 120 && d[i + 1] < 100 && d[i + 2] < 100) {
+              redLeft = Math.min(redLeft, x);
+              redRight = Math.max(redRight, x);
+              redTop = Math.min(redTop, y);
+              redBottom = Math.max(redBottom, y);
+            }
+          }
+        return {
+          width: right - left + 1,
+          height: bottom - top + 1,
+          left,
+          right,
+          top,
+          bottom,
+          redWidth: redRight - redLeft + 1,
+          redHeight: redBottom - redTop + 1,
+        };
+      }, data.toString("base64"));
+      expect(size.left).toBeGreaterThan(0);
+      expect(size.right).toBeLessThan(287);
+      expect(size.top).toBeGreaterThan(0);
+      expect(size.bottom).toBeLessThan(215);
+      if (vertical) expect(size.redHeight).toBeGreaterThan(size.redWidth);
+      else expect(size.redWidth).toBeGreaterThan(size.redHeight);
+      sizes.push(size);
+      await expect(page.locator(".poem-title")).toHaveCSS(
+        "writing-mode",
+        "horizontal-tb",
+      );
+    }
+    expect(sizes[0].width).toBeGreaterThan(sizes[1].width);
+    expect(sizes[1].width).toBeGreaterThan(sizes[2].width);
+    expect(sizes[0].height).toBeGreaterThan(sizes[1].height);
+    expect(sizes[1].height).toBeGreaterThan(sizes[2].height);
+  }
+  await settings(page);
+  await page.getByLabel("竖排排版").check();
+  await close(page);
+  await tool(page, "导出诗词卡片");
+  await expect(
+    dialog.getByRole("radio", { name: "竖排", exact: true }),
+  ).toBeChecked();
+  await dialog.getByRole("radio", { name: "横排", exact: true }).check();
+  await dialog.getByRole("radio", { name: "宽", exact: true }).check();
+  await close(page);
+  await tool(page, "导出诗词卡片");
+  await expect(
+    dialog.getByRole("radio", { name: "竖排", exact: true }),
+  ).toBeChecked();
+  await expect(
+    dialog.getByRole("radio", { name: "适中", exact: true }),
+  ).toBeChecked();
+  await page.setViewportSize({ width: 375, height: 667 });
+  expect(await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(
+    true,
+  );
+  await page.screenshot({ path: "test-results/card-options-mobile.png" });
+});
+
 test("分享卡片先选比例，取消不下载，四种比例不改变横竖排版", async ({
   page,
 }) => {

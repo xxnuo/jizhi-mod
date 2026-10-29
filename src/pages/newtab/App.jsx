@@ -10,7 +10,7 @@ import { useLibrary } from "./hooks/useLibrary";
 import { getRandomPoem, poemText } from "./services/poems";
 import { LIBRARY } from "./services/library";
 import { artworkFor, artworkUrl, FRAMES } from "./services/artwork";
-import { CARD_RATIOS } from "./services/cardRatios";
+import { CARD_RATIOS, CARD_MARGINS } from "./services/cardRatios";
 import {
   readPreferences,
   writeStorage,
@@ -29,6 +29,8 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
   const [exporting, setExporting] = useState(false);
+  const [cardVertical, setCardVertical] = useState(preferences.vertical);
+  const [cardMargin, setCardMargin] = useState("medium");
   const [showBackground, setShowBackground] = useState(true);
   const [tab, setTab] = useState("favorites");
   const notify = useCallback((message) => setNotice(message), []);
@@ -143,7 +145,7 @@ export default function App() {
       await exportPoem(
         poem,
         currentFont,
-        preferences.vertical,
+        cardVertical,
         {
           background: color.backgroundColor,
           foreground: color.color,
@@ -155,6 +157,7 @@ export default function App() {
           dark: isDark,
         },
         ratio,
+        cardMargin,
       );
       notify("诗词卡片已导出");
     } catch {
@@ -248,7 +251,11 @@ export default function App() {
         favorite={favorites.includes(poem.id)}
         onLibrary={() => setPanel("library")}
         onSettings={() => setPanel("settings")}
-        onExport={() => setPanel("export")}
+        onExport={() => {
+          setCardVertical(preferences.vertical);
+          setCardMargin("medium");
+          setPanel("export");
+        }}
         exporting={exporting}
         onCopy={copy}
       />
@@ -286,8 +293,43 @@ export default function App() {
               <p role="status">
                 {exporting
                   ? "正在生成图片…"
-                  : "文字横竖排版跟随页面，选择比例后生成图片。"}
+                  : "选择排版和边距，再点击比例生成图片。"}
               </p>
+              <div className="card-options">
+                <fieldset>
+                  <legend>排版</legend>
+                  {[
+                    [false, "横排"],
+                    [true, "竖排"],
+                  ].map(([vertical, label]) => (
+                    <label key={label}>
+                      <input
+                        type="radio"
+                        name="card-layout"
+                        checked={cardVertical === vertical}
+                        disabled={exporting}
+                        onChange={() => setCardVertical(vertical)}
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </fieldset>
+                <fieldset>
+                  <legend>边距</legend>
+                  {Object.entries(CARD_MARGINS).map(([value, { name }]) => (
+                    <label key={value}>
+                      <input
+                        type="radio"
+                        name="card-margin"
+                        checked={cardMargin === value}
+                        disabled={exporting}
+                        onChange={() => setCardMargin(value)}
+                      />
+                      {name}
+                    </label>
+                  ))}
+                </fieldset>
+              </div>
               <div className="card-ratios">
                 {Object.entries(CARD_RATIOS).map(
                   ([ratio, { width, height, scene }]) => (

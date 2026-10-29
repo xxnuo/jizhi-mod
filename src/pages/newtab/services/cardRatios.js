@@ -4,3 +4,9 @@ export const CARD_RATIOS = {
   "4:3": { width: 2880, height: 2160, scene: "平板壁纸、横版卡片" },
   "3:4": { width: 2160, height: 2880, scene: "图文笔记、竖版卡片" },
 };
+
+export const CARD_MARGINS = {
+  narrow: { name: "窄", scale: 1.15 },
+  medium: { name: "适中", scale: 1 },
+  wide: { name: "宽", scale: 0.8 },
+};

@@ -31,6 +31,10 @@ test("拒绝不支持的卡片比例", async () => {
     await expect(exportPoem(null, null, false, null, ratio)).rejects.toThrow(
       "不支持的卡片比例",
     );
+  for (const margin of ["huge", "__proto__"])
+    await expect(
+      exportPoem(null, null, false, null, "4:3", margin),
+    ).rejects.toThrow("不支持的卡片边距");
 });
 test("大背景与边饰全部可选、无多余素材，旧的小幅配景迁移至边饰", () => {
   expect(artworkFor("none")).toBeUndefined();

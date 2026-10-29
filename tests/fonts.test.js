@@ -1,7 +1,10 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { expect, test } from "vitest";
 import { BACKGROUNDS } from "../src/pages/newtab/services/preferences";
-import { CARD_RATIOS } from "../src/pages/newtab/services/cardRatios";
+import {
+  CARD_RATIOS,
+  CARD_MARGINS,
+} from "../src/pages/newtab/services/cardRatios";
 import {
   ARTWORKS,
   FRAMES,
@@ -22,7 +25,10 @@ test("生成字体覆盖全部传统色名与新增配景、边饰文案", () =>
       });
   });
   const text =
-    "选择卡片比例正在生成图片文字横竖排版跟随页面选择比例后生成图片" +
+    "选择卡片比例正在生成图片排版横排竖排边距选择排版和边距再点击比例生成图片" +
+    Object.values(CARD_MARGINS)
+      .map((margin) => margin.name)
+      .join("") +
     Object.values(CARD_RATIOS)
       .map((ratio) => ratio.scene)
       .join("") +

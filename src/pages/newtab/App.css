@@ -429,6 +429,27 @@ select:focus-visible {
   gap: 1rem;
   margin-top: 1.5rem;
 }
+.card-options,
+.card-options fieldset,
+.card-options label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.card-options {
+  gap: 1rem 2rem;
+  margin-top: 1rem;
+}
+.card-options fieldset {
+  gap: 1rem;
+}
+.card-options legend {
+  margin-bottom: 0.5rem;
+}
+.card-options label {
+  gap: 0.4rem;
+  cursor: pointer;
+}
 .card-ratios button {
   display: flex;
   align-items: center;

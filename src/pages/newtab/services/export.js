@@ -1,7 +1,7 @@
 import { formatPoem } from "./poems";
 import { artworkUrl, backgroundRect } from "./artwork";
 import paperTexture from "../../../../assets/textures/chinese-paper.png";
-import { CARD_RATIOS } from "./cardRatios";
+import { CARD_RATIOS, CARD_MARGINS } from "./cardRatios";
 
 async function drawBackground(context, canvas, colors) {
   const load = async (url) => {
@@ -54,8 +54,16 @@ async function drawBackground(context, canvas, colors) {
   context.restore();
 }
 
-export async function exportPoem(poem, font, vertical, colors, ratio) {
+export async function exportPoem(
+  poem,
+  font,
+  vertical,
+  colors,
+  ratio,
+  margin = "medium",
+) {
   if (!Object.hasOwn(CARD_RATIOS, ratio)) throw new Error("不支持的卡片比例");
+  if (!Object.hasOwn(CARD_MARGINS, margin)) throw new Error("不支持的卡片边距");
   await document.fonts.load(
     `48px "${font}"`,
     `${poem.title}${poem.from}${poem.who}`,
@@ -69,6 +77,11 @@ export async function exportPoem(poem, font, vertical, colors, ratio) {
   context.fillStyle = colors.background;
   context.fillRect(0, 0, canvas.width, canvas.height);
   await drawBackground(context, canvas, colors);
+  context.save();
+  const contentScale = CARD_MARGINS[margin].scale;
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.scale(contentScale, contentScale);
+  context.translate(-canvas.width / 2, -canvas.height / 2);
   context.fillStyle = colors.foreground;
   const lines = formatPoem(poem.title).split("\n");
   const maxWidth = canvas.width * 0.8;
@@ -184,6 +197,7 @@ export async function exportPoem(poem, font, vertical, colors, ratio) {
       drawText(poem.who, sealLeft + (sealWidth * sourceScale) / 2, sourceY);
     }
   }
+  context.restore();
   const blob = await new Promise((resolve) =>
     canvas.toBlob(resolve, "image/png"),
   );
