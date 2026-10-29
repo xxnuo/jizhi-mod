@@ -38,8 +38,6 @@ export default function ArtworkPicker({
             <span className="image-preview" aria-hidden="true">
               {item.file ? (
                 <img src={artworkUrl(item.file)} alt="" loading="lazy" />
-              ) : id === "auto" ? (
-                "色"
               ) : (
                 "—"
               )}

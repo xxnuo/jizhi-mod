@@ -5,8 +5,7 @@
       {
         "id": "traditional-0-0",
         "name": "粉红",
-        "hex": "#ffb3a7",
-        "figure": "moonflower"
+        "hex": "#ffb3a7"
       },
       {
         "id": "traditional-0-1",
@@ -96,8 +95,7 @@
       {
         "id": "traditional-0-18",
         "name": "嫣红",
-        "hex": "#ef7a82",
-        "figure": "goldfish"
+        "hex": "#ef7a82"
       },
       {
         "id": "traditional-0-19",
@@ -297,8 +295,7 @@
       {
         "id": "traditional-2-0",
         "name": "嫩绿",
-        "hex": "#bddd22",
-        "figure": "plumvase"
+        "hex": "#bddd22"
       },
       {
         "id": "traditional-2-1",
@@ -313,8 +310,7 @@
       {
         "id": "traditional-2-3",
         "name": "竹青",
-        "hex": "#789262",
-        "figure": "bamboo"
+        "hex": "#789262"
       },
       {
         "id": "traditional-2-4",
@@ -389,8 +385,7 @@
       {
         "id": "traditional-2-18",
         "name": "青白",
-        "hex": "#c0ebd7",
-        "figure": "shrimp"
+        "hex": "#c0ebd7"
       },
       {
         "id": "traditional-2-19",
@@ -400,8 +395,7 @@
       {
         "id": "traditional-2-20",
         "name": "蟹壳青",
-        "hex": "#bbcdc5",
-        "figure": "lotuspond"
+        "hex": "#bbcdc5"
       },
       {
         "id": "traditional-2-21",
@@ -421,8 +415,7 @@
       {
         "id": "traditional-2-24",
         "name": "豆青",
-        "hex": "#96ce54",
-        "figure": "flowervase"
+        "hex": "#96ce54"
       },
       {
         "id": "traditional-2-25",
@@ -432,8 +425,7 @@
       {
         "id": "traditional-2-26",
         "name": "玉色",
-        "hex": "#2edfa3",
-        "figure": "goldfish"
+        "hex": "#2edfa3"
       },
       {
         "id": "traditional-2-27",
@@ -448,14 +440,12 @@
       {
         "id": "traditional-2-29",
         "name": "松柏绿",
-        "hex": "#21a675",
-        "figure": "lotusleaf"
+        "hex": "#21a675"
       },
       {
         "id": "traditional-2-30",
         "name": "松花绿",
-        "hex": "#057748",
-        "figure": "butterfly"
+        "hex": "#057748"
       },
       {
         "id": "traditional-2-31",
@@ -475,14 +465,12 @@
       {
         "id": "traditional-3-1",
         "name": "靛青",
-        "hex": "#177cb0",
-        "figure": "lotus"
+        "hex": "#177cb0"
       },
       {
         "id": "traditional-3-2",
         "name": "靛蓝",
-        "hex": "#065279",
-        "figure": "moon"
+        "hex": "#065279"
       },
       {
         "id": "traditional-3-3",
@@ -492,8 +480,7 @@
       {
         "id": "traditional-3-4",
         "name": "蔚蓝",
-        "hex": "#70f3ff",
-        "figure": "cranes"
+        "hex": "#70f3ff"
       },
       {
         "id": "traditional-3-5",
@@ -603,8 +590,7 @@
       {
         "id": "traditional-4-0",
         "name": "苍色",
-        "hex": "#75878a",
-        "figure": "mountains"
+        "hex": "#75878a"
       },
       {
         "id": "traditional-4-1",
@@ -614,8 +600,7 @@
       {
         "id": "traditional-4-2",
         "name": "苍黄",
-        "hex": "#a29b7c",
-        "figure": "landscape"
+        "hex": "#a29b7c"
       },
       {
         "id": "traditional-4-3",
@@ -625,14 +610,12 @@
       {
         "id": "traditional-4-4",
         "name": "苍黑",
-        "hex": "#395260",
-        "figure": "moonmountain"
+        "hex": "#395260"
       },
       {
         "id": "traditional-4-5",
         "name": "苍白",
-        "hex": "#d1d9e0",
-        "figure": "sailboats"
+        "hex": "#d1d9e0"
       }
     ]
   },
@@ -642,8 +625,7 @@
       {
         "id": "traditional-5-0",
         "name": "水色",
-        "hex": "#88ada6",
-        "figure": "lotusbird"
+        "hex": "#88ada6"
       },
       {
         "id": "traditional-5-1",
@@ -658,14 +640,12 @@
       {
         "id": "traditional-5-3",
         "name": "水蓝",
-        "hex": "#d2f0f4",
-        "figure": "moon"
+        "hex": "#d2f0f4"
       },
       {
         "id": "traditional-5-4",
         "name": "淡青",
-        "hex": "#d3e0f3",
-        "figure": "vase"
+        "hex": "#d3e0f3"
       },
       {
         "id": "traditional-5-5",
@@ -675,8 +655,7 @@
       {
         "id": "traditional-5-6",
         "name": "湖绿",
-        "hex": "#25f8cb",
-        "figure": "lotus"
+        "hex": "#25f8cb"
       }
     ]
   },
@@ -711,20 +690,17 @@
       {
         "id": "traditional-6-5",
         "name": "素",
-        "hex": "#e0f0e9",
-        "figure": "mountains"
+        "hex": "#e0f0e9"
       },
       {
         "id": "traditional-6-6",
         "name": "荼白",
-        "hex": "#f3f9f1",
-        "figure": "crane"
+        "hex": "#f3f9f1"
       },
       {
         "id": "traditional-6-7",
         "name": "霜色",
-        "hex": "#e9f1f6",
-        "figure": "orchid"
+        "hex": "#e9f1f6"
       },
       {
         "id": "traditional-6-8",
@@ -779,14 +755,12 @@
       {
         "id": "traditional-7-3",
         "name": "乌黑",
-        "hex": "#392f41",
-        "figure": "moon"
+        "hex": "#392f41"
       },
       {
         "id": "traditional-7-4",
         "name": "漆黑",
-        "hex": "#161823",
-        "figure": "moonflower"
+        "hex": "#161823"
       },
       {
         "id": "traditional-7-5",
@@ -801,8 +775,7 @@
       {
         "id": "traditional-7-7",
         "name": "黑色",
-        "hex": "#000000",
-        "figure": "moon"
+        "hex": "#000000"
       },
       {
         "id": "traditional-7-8",

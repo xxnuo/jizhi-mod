@@ -33,9 +33,6 @@ export const ARTWORKS = {
   },
 };
 export const FRAMES = {
-  auto: {
-    name: "随背景色",
-  },
   none: {
     name: "无边饰",
   },
@@ -207,13 +204,6 @@ export const FILLS = {
 export function artworkFor(value) {
   const artwork = ARTWORKS[value];
   return artwork?.file ? artwork : undefined;
-}
-export function frameFor(value, color) {
-  const frame =
-    value === "auto"
-      ? FRAMES[color?.figure] || FRAMES.mountains
-      : FRAMES[value];
-  return frame?.file ? frame : undefined;
 }
 export function artworkUrl(file) {
   return `/illustrations/${file}`;

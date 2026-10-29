@@ -15,12 +15,11 @@ export const BACKGROUNDS = {
   yanzhi: { name: "胭脂", light: "#edc9cb", dark: "#422a31" },
   ...Object.fromEntries(
     COLOR_GROUPS.flatMap((group) =>
-      group.colors.map(({ id, name, hex, figure }) => [
+      group.colors.map(({ id, name, hex }) => [
         id,
         {
           name,
           group: group.name,
-          figure,
           light: hex,
           dark: `#${hex
             .slice(1)

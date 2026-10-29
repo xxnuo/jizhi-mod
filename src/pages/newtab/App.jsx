@@ -9,7 +9,7 @@ import { useVoice } from "./hooks/useVoice";
 import { useLibrary } from "./hooks/useLibrary";
 import { getRandomPoem, poemText } from "./services/poems";
 import { LIBRARY } from "./services/library";
-import { artworkFor, artworkUrl, frameFor } from "./services/artwork";
+import { artworkFor, artworkUrl, FRAMES } from "./services/artwork";
 import {
   readPreferences,
   writeStorage,
@@ -162,7 +162,7 @@ export default function App() {
   const background = backgroundColor(preferences.background, isDark, day);
   const color = selectedBackground(preferences.background, day);
   const artwork = artworkFor(preferences.artwork);
-  const frame = frameFor(preferences.frame, color);
+  const frame = FRAMES[preferences.frame];
   useEffect(() => {
     setShowBackground(true);
     const timer = setTimeout(() => setShowBackground(false), 3000);
@@ -199,7 +199,7 @@ export default function App() {
             style={{ objectFit: preferences.artworkFill }}
           />
         )}
-        {frame && (
+        {frame?.file && (
           <img
             className="background-frame"
             src={artworkUrl(frame.file)}

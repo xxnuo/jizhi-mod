@@ -18,7 +18,6 @@ import {
   ARTWORKS,
   FRAMES,
   artworkFor,
-  frameFor,
   backgroundRect,
 } from "../src/pages/newtab/services/artwork";
 
@@ -29,10 +28,7 @@ beforeEach(() => {
 test("大背景与边饰全部可选、无多余素材，旧的小幅配景迁移至边饰", () => {
   expect(artworkFor("none")).toBeUndefined();
   expect(artworkFor("lake").file).toBe("background-hengshan.webp");
-  expect(frameFor("auto", BACKGROUNDS["traditional-0-0"]).file).toBe(
-    "flower.moon.webp",
-  );
-  expect(frameFor("auto").file).toBe("qunshan.webp");
+  expect(FRAMES).not.toHaveProperty("auto");
   const files = [...Object.values(ARTWORKS), ...Object.values(FRAMES)]
     .filter((item) => item.file)
     .map((item) => item.file);
@@ -40,7 +36,7 @@ test("大背景与边饰全部可选、无多余素材，旧的小幅配景迁�
   expect(readdirSync("public/illustrations").sort()).toEqual([...files].sort());
   expect(FRAMES).not.toHaveProperty("eaves");
   for (const color of Object.values(BACKGROUNDS))
-    if (color.figure) expect(FRAMES[color.figure]?.file).toBeTruthy();
+    expect(color).not.toHaveProperty("figure");
   localStorage.setItem(
     "preferences",
     JSON.stringify({
@@ -101,10 +97,15 @@ test("大背景与边饰全部可选、无多余素材，旧的小幅配景迁�
     artworkFill: "cover",
     framePosition: "bottom-right",
   });
-  for (const frame of ["eaves", "lantern", "papercut"]) {
+  for (const frame of ["auto", "eaves", "lantern", "papercut"]) {
     localStorage.setItem("preferences", JSON.stringify({ frame }));
     expect(readPreferences().frame).toBe("none");
   }
+  localStorage.setItem(
+    "preferences",
+    JSON.stringify({ artwork: "auto", frame: "none" }),
+  );
+  expect(readPreferences()).toMatchObject({ artwork: "none", frame: "none" });
 });
 test("背景填充几何：裁切铺满、完整显示、拉伸及原尺寸居中", () => {
   expect(backgroundRect(400, 200, 100, 100, "cover")).toEqual({
