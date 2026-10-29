@@ -10,6 +10,7 @@ import { useLibrary } from "./hooks/useLibrary";
 import { getRandomPoem, poemText } from "./services/poems";
 import { LIBRARY } from "./services/library";
 import { artworkFor, artworkUrl, FRAMES } from "./services/artwork";
+import { CARD_RATIOS } from "./services/cardRatios";
 import {
   readPreferences,
   writeStorage,
@@ -132,27 +133,35 @@ export default function App() {
     };
   }, [panel, nextPoem, toggleFont, toggleTheme, copy, playVoice, poem]);
 
-  async function download() {
+  async function download(ratio) {
+    if (exporting) return;
     setExporting(true);
     try {
       const { exportPoem } = await import("./services/export");
       const app = document.getElementById("app");
       const color = getComputedStyle(app);
-      await exportPoem(poem, currentFont, preferences.vertical, {
-        background: color.backgroundColor,
-        foreground: color.color,
-        texture: preferences.texture,
-        artwork,
-        frame,
-        artworkFill: preferences.artworkFill,
-        framePosition: preferences.framePosition,
-        dark: isDark,
-      });
+      await exportPoem(
+        poem,
+        currentFont,
+        preferences.vertical,
+        {
+          background: color.backgroundColor,
+          foreground: color.color,
+          texture: preferences.texture,
+          artwork,
+          frame,
+          artworkFill: preferences.artworkFill,
+          framePosition: preferences.framePosition,
+          dark: isDark,
+        },
+        ratio,
+      );
       notify("诗词卡片已导出");
     } catch {
       notify("导出失败，请稍后重试");
     } finally {
       setExporting(false);
+      setPanel((current) => (current === "export" ? null : current));
     }
   }
   const ids = (tab === "favorites" ? favorites : history).filter((id) =>
@@ -239,7 +248,7 @@ export default function App() {
         favorite={favorites.includes(poem.id)}
         onLibrary={() => setPanel("library")}
         onSettings={() => setPanel("settings")}
-        onExport={download}
+        onExport={() => setPanel("export")}
         exporting={exporting}
         onCopy={copy}
       />
@@ -261,6 +270,7 @@ export default function App() {
               search: "搜索",
               library: "收藏与历史",
               settings: "设置",
+              export: "选择卡片比例",
             }[panel]
           }
           onClose={() => setPanel(null)}
@@ -270,6 +280,41 @@ export default function App() {
               preferences={preferences}
               onChange={changePreferences}
             />
+          )}
+          {panel === "export" && (
+            <section className="card-export">
+              <p role="status">
+                {exporting
+                  ? "正在生成图片…"
+                  : "文字横竖排版跟随页面，选择比例后生成图片。"}
+              </p>
+              <div className="card-ratios">
+                {Object.entries(CARD_RATIOS).map(
+                  ([ratio, { width, height, scene }]) => (
+                    <button
+                      type="button"
+                      key={ratio}
+                      value={ratio}
+                      disabled={exporting}
+                      onClick={() => download(ratio)}
+                    >
+                      <span className="ratio-preview" aria-hidden="true">
+                        <span
+                          style={{
+                            width: (56 * width) / Math.max(width, height),
+                            height: (56 * height) / Math.max(width, height),
+                          }}
+                        />
+                      </span>
+                      <span>
+                        <strong>{ratio}</strong>
+                        <small>{scene}</small>
+                      </span>
+                    </button>
+                  ),
+                )}
+              </div>
+            </section>
           )}
           {panel === "search" && (
             <form

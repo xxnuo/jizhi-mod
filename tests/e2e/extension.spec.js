@@ -1,4 +1,4 @@
-const { tool, selectDecoration } = require("./helpers");
+const { tool, selectDecoration, exportCard } = require("./helpers");
 const { test, expect, chromium } = require("@playwright/test");
 const path = require("node:path");
 
@@ -57,7 +57,7 @@ test("真实扩展断网后加载全部国画、边饰与字体，保存配景�
     });
     for (let index = 0; index < 7; index++) {
       const downloaded = page.waitForEvent("download");
-      await tool(page, "导出诗词卡片");
+      await exportCard(page);
       const file = await downloaded;
       expect(await file.failure()).toBeNull();
       if (index === 0)
@@ -135,7 +135,7 @@ test("真实 MV3 扩展：后台消息、离线词库、收藏、七种字体与
           ),
       );
       const download = page.waitForEvent("download");
-      await tool(page, "导出诗词卡片");
+      await exportCard(page);
       const file = await download;
       expect(await file.failure()).toBeNull();
       if (index === 0) await file.saveAs("test-results/export-horizontal.png");
@@ -147,7 +147,7 @@ test("真实 MV3 扩展：后台消息、离线词库、收藏、七种字体与
     await page.keyboard.press("Escape");
     await page.screenshot({ path: "test-results/extension-offline.png" });
     const download = page.waitForEvent("download");
-    await tool(page, "导出诗词卡片");
+    await exportCard(page);
     await (await download).saveAs("test-results/export-vertical.png");
     expect(errors).toEqual([]);
   } finally {

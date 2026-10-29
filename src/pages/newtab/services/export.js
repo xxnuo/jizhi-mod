@@ -1,6 +1,7 @@
 import { formatPoem } from "./poems";
 import { artworkUrl, backgroundRect } from "./artwork";
 import paperTexture from "../../../../assets/textures/chinese-paper.png";
+import { CARD_RATIOS } from "./cardRatios";
 
 async function drawBackground(context, canvas, colors) {
   const load = async (url) => {
@@ -53,15 +54,16 @@ async function drawBackground(context, canvas, colors) {
   context.restore();
 }
 
-export async function exportPoem(poem, font, vertical, colors) {
+export async function exportPoem(poem, font, vertical, colors, ratio) {
+  if (!Object.hasOwn(CARD_RATIOS, ratio)) throw new Error("不支持的卡片比例");
   await document.fonts.load(
     `48px "${font}"`,
     `${poem.title}${poem.from}${poem.who}`,
   );
   await document.fonts.ready;
   const canvas = document.createElement("canvas");
-  canvas.width = vertical ? 2160 : 2880;
-  canvas.height = vertical ? 2880 : 2160;
+  canvas.width = CARD_RATIOS[ratio].width;
+  canvas.height = CARD_RATIOS[ratio].height;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("浏览器不支持图片导出");
   context.fillStyle = colors.background;

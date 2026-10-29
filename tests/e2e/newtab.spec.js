@@ -1,5 +1,10 @@
 const SENTENCES = require("sentences-bundle/sentences/i.json");
-const { tool, selectBackground, selectDecoration } = require("./helpers");
+const {
+  tool,
+  selectBackground,
+  selectDecoration,
+  exportCard,
+} = require("./helpers");
 const { test, expect } = require("@playwright/test");
 
 test.beforeEach(async ({ page }) => {
@@ -12,6 +17,81 @@ async function settings(page) {
 async function close(page) {
   await page.getByRole("button", { name: "关闭", exact: true }).click();
 }
+
+test("分享卡片先选比例，取消不下载，四种比例不改变横竖排版", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
+  const downloads = [];
+  page.on("download", (file) => downloads.push(file));
+  await tool(page, "导出诗词卡片");
+  const dialog = page.getByRole("dialog", {
+    name: "选择卡片比例",
+    exact: true,
+  });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator(".card-ratios button")).toHaveCount(4);
+  for (const [ratio, expected] of [
+    ["16:9", 16 / 9],
+    ["9:16", 9 / 16],
+    ["4:3", 4 / 3],
+    ["3:4", 3 / 4],
+  ]) {
+    const box = await dialog
+      .locator(`button[value="${ratio}"] .ratio-preview > span`)
+      .boundingBox();
+    expect(box.width / box.height).toBeCloseTo(expected, 2);
+  }
+  await expect(dialog).toContainText("电脑壁纸、横屏演示");
+  await expect(dialog).toContainText("手机壁纸、竖屏分享");
+  await expect(dialog).toContainText("平板壁纸、横版卡片");
+  await expect(dialog).toContainText("图文笔记、竖版卡片");
+  expect(downloads).toHaveLength(0);
+  await page.screenshot({ path: "test-results/card-ratios-desktop.png" });
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "导出诗词卡片", exact: true }),
+  ).toBeFocused();
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await tool(page, "导出诗词卡片");
+  expect(await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(
+    true,
+  );
+  await page.screenshot({ path: "test-results/card-ratios-mobile-dark.png" });
+  await close(page);
+  expect(downloads).toHaveLength(0);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  for (const vertical of [false, true]) {
+    await settings(page);
+    await page.getByLabel("竖排排版").setChecked(vertical);
+    await close(page);
+    for (const [ratio, width, height] of [
+      ["16:9", 2880, 1620],
+      ["9:16", 1620, 2880],
+      ["4:3", 2880, 2160],
+      ["3:4", 2160, 2880],
+    ]) {
+      const downloaded = page.waitForEvent("download");
+      await exportCard(page, ratio);
+      const file = await downloaded;
+      const data = require("node:fs").readFileSync(await file.path());
+      expect(data.subarray(1, 4).toString()).toBe("PNG");
+      expect(data.readUInt32BE(16)).toBe(width);
+      expect(data.readUInt32BE(20)).toBe(height);
+      await expect(dialog).toHaveCount(0);
+      await expect(page.locator(".poem-title")).toHaveCSS(
+        "writing-mode",
+        vertical ? "vertical-rl" : "horizontal-tb",
+      );
+      await file.saveAs(
+        `test-results/card-ratio-${ratio.replace(":", "-")}-${vertical ? "vertical" : "horizontal"}.png`,
+      );
+    }
+  }
+  expect(downloads).toHaveLength(8);
+});
 
 test("快捷操作分项排版，康熙字体的空字形由备用字体补齐，诗词斜杠正常显示", async ({
   page,
@@ -174,7 +254,7 @@ test("背景四种填充样式导出不同画面", async ({ page }) => {
       fill,
     );
     const downloaded = page.waitForEvent("download");
-    await tool(page, "导出诗词卡片");
+    await exportCard(page);
     const file = await downloaded;
     const data = require("node:fs").readFileSync(await file.path());
     hashes.add(
@@ -197,7 +277,7 @@ test("卡片导出在四个角准确绘制边饰", async ({ page }) => {
     await page.getByLabel("边饰位置").selectOption(position);
     await close(page);
     const downloaded = page.waitForEvent("download");
-    await tool(page, "导出诗词卡片");
+    await exportCard(page);
     const file = await downloaded;
     const base64 = require("node:fs")
       .readFileSync(await file.path())
@@ -358,7 +438,7 @@ test("传统色色签分类、明暗适配和持久化，小屏无溢出", async
   );
   await expect(page.getByLabel("当前背景色")).toContainText("胭脂#9D2933");
   const downloaded = page.waitForEvent("download");
-  await tool(page, "导出诗词卡片");
+  await exportCard(page);
   const file = await downloaded;
   const base64 = require("node:fs")
     .readFileSync(await file.path())
@@ -550,7 +630,7 @@ test("横竖切换导出的尺寸与作者落款跟随页面，切回横排恢�
     await page.getByLabel("竖排排版").setChecked(vertical);
     await close(page);
     const download = page.waitForEvent("download");
-    await tool(page, "导出诗词卡片");
+    await exportCard(page);
     const file = await download;
     const fs = require("node:fs");
     const data = fs.readFileSync(await file.path());

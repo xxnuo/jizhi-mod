@@ -25,6 +25,13 @@ beforeEach(() => {
   localStorage.clear();
   vi.restoreAllMocks();
 });
+test("拒绝不支持的卡片比例", async () => {
+  const { exportPoem } = await import("../src/pages/newtab/services/export");
+  for (const ratio of ["1:1", "__proto__", undefined])
+    await expect(exportPoem(null, null, false, null, ratio)).rejects.toThrow(
+      "不支持的卡片比例",
+    );
+});
 test("大背景与边饰全部可选、无多余素材，旧的小幅配景迁移至边饰", () => {
   expect(artworkFor("none")).toBeUndefined();
   expect(artworkFor("lake").file).toBe("background-hengshan.webp");

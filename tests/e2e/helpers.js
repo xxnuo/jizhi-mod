@@ -40,4 +40,13 @@ async function selectDecoration(page, label, id) {
     .locator(`button[value="${id}"]`)
     .click();
 }
-module.exports = { tool, selectBackground, selectDecoration };
+async function exportCard(page, ratio) {
+  await tool(page, "导出诗词卡片");
+  const selected =
+    ratio || ((await page.locator(".poem-vertical").count()) ? "3:4" : "4:3");
+  await page
+    .getByRole("dialog", { name: "选择卡片比例", exact: true })
+    .locator(`button[value="${selected}"]`)
+    .click();
+}
+module.exports = { tool, selectBackground, selectDecoration, exportCard };

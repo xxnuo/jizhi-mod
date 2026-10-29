@@ -423,6 +423,43 @@ select:focus-visible {
   font-size: calc(0.85rem + 2px);
   margin-top: 1.5rem;
 }
+.card-ratios {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.card-ratios button {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  text-align: start;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+}
+.card-ratios button:hover {
+  border-color: currentColor;
+}
+.card-ratios strong,
+.card-ratios small {
+  display: block;
+}
+.card-ratios small {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.ratio-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 3.5rem;
+  height: 3.5rem;
+}
+.ratio-preview > span {
+  border: 1px solid currentColor;
+}
 .settings-help dl {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -505,6 +542,9 @@ select:focus-visible {
   }
 }
 @media (max-width: 480px) {
+  .card-ratios {
+    grid-template-columns: 1fr;
+  }
   .settings-help dl {
     grid-template-columns: 1fr;
   }
