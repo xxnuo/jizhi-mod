@@ -6,10 +6,18 @@ export default defineConfig({
   vite: () => ({
     plugins: [tailwindcss()],
   }),
-  manifest: {
+  manifest: ({ browser }) => ({
+    ...(browser === "firefox"
+      ? {
+          browser_specific_settings: {
+            gecko: { id: "{5c52f9a1-a16f-4f31-8990-ebf555df5d9c}" },
+          },
+        }
+      : {}),
     author: "xxnuo",
     name: "浮生梦",
-    description: "支持自定义新标签页的 Chrome 扩展，在新标签页上展示中国经典诗词。",
+    description:
+      "支持自定义新标签页的 Chrome 扩展，在新标签页上展示中国经典诗词。",
     action: {
       default_icon: {
         16: "icon/16.png",
@@ -21,5 +29,5 @@ export default defineConfig({
       },
       default_title: "浮生梦",
     },
-  },
+  }),
 });
