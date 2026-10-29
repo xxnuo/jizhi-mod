@@ -18,3 +18,5 @@ node_modules
 # 测试输出
 /test-results/
 /playwright-report/
+
+/assets/fonts/.build-*/

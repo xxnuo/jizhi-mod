@@ -16,10 +16,9 @@ export const BACKGROUNDS = {
 };
 export const DEFAULTS = {
   vertical: false,
-  traditional: false,
-  engine: "Google",
+  engine: "Bing",
   background: "theme",
-  texture: false,
+  texture: true,
   categories: CATEGORIES,
 };
 export function readStorage(key, fallback) {
@@ -44,8 +43,8 @@ export function readPreferences() {
     : CATEGORIES;
   return {
     vertical: value?.vertical === true,
-    traditional: value?.traditional === true,
-    texture: value?.texture === true,
+    texture:
+      typeof value?.texture === "boolean" ? value.texture : DEFAULTS.texture,
     engine: Object.hasOwn(ENGINES, value?.engine)
       ? value.engine
       : DEFAULTS.engine,

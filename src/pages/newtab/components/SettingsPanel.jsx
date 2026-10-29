@@ -1,4 +1,6 @@
+import { useRef, useState } from "react";
 import {
+  IoMenuOutline,
   IoMoonOutline,
   IoSunnyOutline,
   IoVolumeHighOutline,
@@ -26,14 +28,6 @@ export function Preferences({ preferences, onChange }) {
           type="checkbox"
           checked={preferences.vertical}
           onChange={(event) => onChange({ vertical: event.target.checked })}
-        />
-      </label>
-      <label>
-        <span>繁体显示</span>
-        <input
-          type="checkbox"
-          checked={preferences.traditional}
-          onChange={(event) => onChange({ traditional: event.target.checked })}
         />
       </label>
       <label>
@@ -121,6 +115,8 @@ export default function SettingsPanel({
   exporting,
   onCopy,
 }) {
+  const [open, setOpen] = useState(false);
+  const drawerButton = useRef(null);
   const ThemeIcon =
     theme === "light"
       ? IoSunnyOutline
@@ -151,21 +147,50 @@ export default function SettingsPanel({
     ["settings", "设置", IoSettingsOutline, onSettings],
   ];
   return (
-    <nav className="poem-toolbar" aria-label="诗词工具栏">
-      {buttons.map(([id, label, Icon, action]) => (
-        <button
-          key={id}
-          id={id}
-          type="button"
-          aria-label={label}
-          title={label}
-          disabled={id === "export" && exporting}
-          aria-pressed={id === "favorite" ? favorite : undefined}
-          onClick={action}
-        >
-          <Icon aria-hidden="true" />
-        </button>
-      ))}
+    <nav
+      className="poem-toolbar"
+      aria-label="诗词工具栏"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      onFocus={() => setOpen(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          drawerButton.current.focus();
+          setOpen(false);
+        }
+      }}
+    >
+      <button
+        ref={drawerButton}
+        type="button"
+        aria-label="诗词工具"
+        title="诗词工具"
+        aria-expanded={open}
+        aria-controls="poem-tools"
+        onClick={() => setOpen(true)}
+      >
+        <IoMenuOutline aria-hidden="true" />
+      </button>
+      <div id="poem-tools" className="toolbar-actions" hidden={!open}>
+        {buttons.map(([id, label, Icon, action]) => (
+          <button
+            key={id}
+            id={id}
+            type="button"
+            aria-label={label}
+            title={label}
+            disabled={id === "export" && exporting}
+            aria-pressed={id === "favorite" ? favorite : undefined}
+            onClick={action}
+          >
+            <Icon aria-hidden="true" />
+          </button>
+        ))}
+      </div>
     </nav>
   );
 }

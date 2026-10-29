@@ -11,7 +11,7 @@ import {
   backgroundColor,
   ENGINES,
 } from "../src/pages/newtab/services/preferences";
-import { displayPoem, poemText } from "../src/pages/newtab/services/text";
+import { poemText } from "../src/pages/newtab/services/poems";
 
 beforeEach(() => {
   localStorage.clear();
@@ -35,7 +35,7 @@ test("每类均有完整离线内容，随机结果遵守偏好且避免连续�
 });
 test("损坏和越界设置安全回退，存储失败不抛错", () => {
   localStorage.setItem("preferences", "{");
-  expect(readPreferences().engine).toBe("Google");
+  expect(readPreferences().engine).toBe("Bing");
   localStorage.setItem(
     "preferences",
     JSON.stringify({
@@ -47,7 +47,7 @@ test("损坏和越界设置安全回退，存储失败不抛错", () => {
   );
   expect(readPreferences()).toMatchObject({
     categories: CATEGORIES,
-    engine: "Google",
+    engine: "Bing",
     background: "theme",
     vertical: false,
   });
@@ -56,14 +56,8 @@ test("损坏和越界设置安全回退，存储失败不抛错", () => {
   });
   expect(writeStorage("favorites", [])).toBe(false);
 });
-test("繁简转换覆盖正文出处作者，复制保留出处，标点不丢失", () => {
-  const source = { ...LIBRARY[0], title: "举头望明月，低头思故乡。" };
-  const converted = displayPoem(source, true);
-  expect(converted.title).toBe("舉頭望明月，低頭思故鄉。");
-  expect(converted.from).toBe("靜夜思");
-  expect(converted.id).toBe(source.id);
-  expect(source.title).toContain("举");
-  expect(poemText(converted)).toContain("——李白《靜夜思》");
+test("复制保留原文及出处，排版不丢失标点", () => {
+  expect(poemText(LIBRARY[0])).toBe(`${LIBRARY[0].title}\n——李白《静夜思》`);
   expect(formatPoem("知否，知否？应是绿肥红瘦。")).toBe(
     "知否，\n知否？\n应是绿肥红瘦。",
   );
@@ -85,4 +79,16 @@ test("每日配色按本地日期稳定轮换，深色使用独立配色，搜�
         .values()
         .next().value,
     ).toBe("诗 & 月 #");
+});
+
+test("默认 Bing 和宣纸纹理，保留已有明确偏好，忽略旧繁体开关", () => {
+  expect(readPreferences()).toMatchObject({ engine: "Bing", texture: true });
+  localStorage.setItem(
+    "preferences",
+    JSON.stringify({ engine: "Google", texture: false, traditional: true }),
+  );
+  expect(readPreferences()).toMatchObject({ engine: "Google", texture: false });
+  expect(readPreferences()).not.toHaveProperty("traditional");
+  localStorage.setItem("preferences", JSON.stringify({ texture: "false" }));
+  expect(readPreferences().texture).toBe(true);
 });

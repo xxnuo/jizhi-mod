@@ -1,3 +1,4 @@
+const { tool } = require("./helpers");
 const { test, expect, chromium } = require("@playwright/test");
 const path = require("node:path");
 
@@ -52,9 +53,9 @@ test("真实 MV3 扩展：后台消息、离线全文、收藏、七种字体与
     await page.getByRole("button", { name: "查看全文与释义" }).click();
     await expect(page.getByRole("heading", { name: "白话释义" })).toBeVisible();
     await page.keyboard.press("Escape");
-    await page.getByRole("button", { name: "收藏", exact: true }).click();
+    await tool(page, "收藏");
     await page.reload();
-    await page.getByRole("button", { name: "收藏与历史", exact: true }).click();
+    await tool(page, "收藏与历史");
     await expect(page.locator(".library-list li")).toHaveCount(1);
     await page.keyboard.press("Escape");
     const fonts = new Set();
@@ -67,20 +68,19 @@ test("真实 MV3 扩展：后台消息、离线全文、收藏、七种字体与
           ),
       );
       const download = page.waitForEvent("download");
-      await page.getByRole("button", { name: "导出诗词卡片" }).click();
+      await tool(page, "导出诗词卡片");
       const file = await download;
       expect(await file.failure()).toBeNull();
       if (index === 0) await file.saveAs("test-results/export-horizontal.png");
-      await page.getByRole("button", { name: "切换字体（F）" }).click();
+      await tool(page, "切换字体（F）");
     }
     expect(fonts.size).toBe(7);
-    await page.getByRole("button", { name: "设置", exact: true }).click();
+    await tool(page, "设置");
     await page.getByLabel("竖排排版").check();
-    await page.getByLabel("繁体显示").check();
     await page.keyboard.press("Escape");
     await page.screenshot({ path: "test-results/extension-offline.png" });
     const download = page.waitForEvent("download");
-    await page.getByRole("button", { name: "导出诗词卡片" }).click();
+    await tool(page, "导出诗词卡片");
     await (await download).saveAs("test-results/export-vertical.png");
     expect(errors).toEqual([]);
   } finally {

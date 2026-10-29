@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./App.css";
 import PoemDisplay from "./components/PoemDisplay";
 import SettingsPanel, { Preferences } from "./components/SettingsPanel";
@@ -30,23 +30,6 @@ export default function App() {
   const { isMuted, toggleMute, playVoice, stopVoice, status } =
     useVoice(notify);
   const { favorites, history, toggleFavorite } = useLibrary(poem, notify);
-  const [convert, setConvert] = useState(null);
-  useEffect(() => {
-    if (!preferences.traditional || convert) return;
-    let active = true;
-    import("./services/text")
-      .then(({ displayPoem }) => {
-        if (active) setConvert(() => displayPoem);
-      })
-      .catch(() => notify("繁体字典加载失败，请刷新重试"));
-    return () => {
-      active = false;
-    };
-  }, [preferences.traditional, convert, notify]);
-  const shown = useMemo(
-    () => (convert ? convert(poem, preferences.traditional) : poem),
-    [poem, preferences.traditional, convert],
-  );
   const [dark, setDark] = useState(
     () => window.matchMedia("(prefers-color-scheme: dark)").matches,
   );
@@ -69,19 +52,19 @@ export default function App() {
   }, [notice]);
   useEffect(() => {
     stopVoice();
-  }, [poem.id, preferences.traditional, stopVoice]);
+  }, [poem.id, stopVoice]);
 
   const nextPoem = useCallback(() => {
     setPoem((previous) => getRandomPoem(preferences.categories, previous.id));
   }, [preferences.categories]);
   const copy = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(poemText(shown));
+      await navigator.clipboard.writeText(poemText(poem));
       notify("已复制诗句及出处");
     } catch {
       notify("复制失败，请检查剪贴板权限");
     }
-  }, [shown, notify]);
+  }, [poem, notify]);
   function changePreferences(patch) {
     const next = { ...preferences, ...patch };
     setPreferences(next);
@@ -115,7 +98,7 @@ export default function App() {
         f: toggleFont,
         t: toggleTheme,
         c: copy,
-        s: () => playVoice(shown.title),
+        s: () => playVoice(poem.title),
       };
       const key = event.key.toLowerCase();
       if (actions[key]) {
@@ -145,7 +128,7 @@ export default function App() {
       window.removeEventListener("keydown", keydown);
       window.removeEventListener("compositionend", composition);
     };
-  }, [panel, nextPoem, toggleFont, toggleTheme, copy, playVoice, shown]);
+  }, [panel, nextPoem, toggleFont, toggleTheme, copy, playVoice, poem]);
 
   async function download() {
     setExporting(true);
@@ -153,7 +136,7 @@ export default function App() {
       const { exportPoem } = await import("./services/export");
       const app = document.getElementById("app");
       const color = getComputedStyle(app);
-      await exportPoem(shown, currentFont, preferences.vertical, {
+      await exportPoem(poem, currentFont, preferences.vertical, {
         background: color.backgroundColor,
         foreground: color.color,
       });
@@ -188,9 +171,9 @@ export default function App() {
     >
       <main className="poem-stage">
         <PoemDisplay
-          poem={shown}
+          poem={poem}
           vertical={preferences.vertical}
-          onTitleClick={() => playVoice(shown.title)}
+          onTitleClick={() => playVoice(poem.title)}
           onDetails={() => setPanel("details")}
         />
       </main>
@@ -244,13 +227,13 @@ export default function App() {
           )}
           {panel === "details" && (
             <section className="poem-details">
-              <h3>{shown.from}</h3>
-              <p>{shown.who}</p>
-              <p className="full-poem">{shown.full}</p>
+              <h3>{poem.from}</h3>
+              <p>{poem.who}</p>
+              <p className="full-poem">{poem.full}</p>
               <h3>白话释义</h3>
-              <p>{shown.meaning}</p>
+              <p>{poem.meaning}</p>
               <h3>作者背景</h3>
-              <p>{shown.bio}</p>
+              <p>{poem.bio}</p>
             </section>
           )}
           {panel === "search" && (
@@ -299,12 +282,7 @@ export default function App() {
               {!ids.length && <p>暂无收藏，遇到喜欢的诗句可点击工具栏收藏。</p>}
               <ul className="library-list">
                 {ids.map((id) => {
-                  const entry = convert
-                    ? convert(
-                        LIBRARY.find((item) => item.id === id),
-                        preferences.traditional,
-                      )
-                    : LIBRARY.find((item) => item.id === id);
+                  const entry = LIBRARY.find((item) => item.id === id);
                   return (
                     <li key={id}>
                       <button

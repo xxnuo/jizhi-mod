@@ -22,8 +22,13 @@ export default function PoemDisplay({
         {formatPoem(poem.title)}
       </button>
       <div id="poem-author-container" className="poem-source">
-        <button type="button" onClick={onDetails} aria-label="查看全文与释义">
-          「{poem.from}」
+        <button
+          type="button"
+          className="source-title"
+          onClick={onDetails}
+          aria-label="查看全文与释义"
+        >
+          {vertical ? poem.from : `「${poem.from}」`}
         </button>
         <button
           type="button"

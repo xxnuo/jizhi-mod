@@ -1,3 +1,4 @@
+const { tool } = require("./helpers");
 const { test, expect } = require("@playwright/test");
 
 test.beforeEach(async ({ page }) => {
@@ -5,7 +6,7 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator(".poem-title")).toBeVisible();
 });
 async function settings(page) {
-  await page.getByRole("button", { name: "设置", exact: true }).click();
+  await tool(page, "设置");
 }
 async function close(page) {
   await page.getByRole("button", { name: "关闭", exact: true }).click();
@@ -30,10 +31,9 @@ test("离线全文、释义、作者背景；模态框关闭恢复焦点", async
   ).toBeFocused();
 });
 
-test("竖排、繁体、背景纹理与设置持久化", async ({ page }) => {
+test("竖排、背景纹理与设置持久化", async ({ page }) => {
   await settings(page);
   await page.getByLabel("竖排排版").check();
-  await page.getByLabel("繁体显示").check();
   await page.getByLabel("背景", { exact: true }).selectOption("yanzhi");
   await page.getByLabel("宣纸纹理").check();
   await close(page);
@@ -52,7 +52,6 @@ test("竖排、繁体、背景纹理与设置持久化", async ({ page }) => {
     "vertical-rl",
   );
   await settings(page);
-  await expect(page.getByLabel("繁体显示")).toBeChecked();
   await expect(page.getByLabel("宣纸纹理")).toBeChecked();
 });
 
@@ -69,14 +68,14 @@ test("换句、字体主题快捷键、空白双击；收藏历史恢复", async
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem("theme")))
     .toBe("light");
-  await page.getByRole("button", { name: "收藏", exact: true }).click();
+  await tool(page, "收藏");
   await page.locator(".poem-stage").dblclick({ position: { x: 5, y: 5 } });
   await expect(page.locator(".poem-title")).not.toHaveText(next);
   await page.reload();
-  await page.getByRole("button", { name: "收藏与历史", exact: true }).click();
+  await tool(page, "收藏与历史");
   await page.locator(".library-list button").first().click();
   await expect(page.locator(".poem-title")).toHaveText(next);
-  await page.getByRole("button", { name: "收藏与历史", exact: true }).click();
+  await tool(page, "收藏与历史");
   await page.getByRole("button", { name: "历史", exact: true }).click();
   expect(await page.locator(".library-list li").count()).toBeGreaterThanOrEqual(
     2,
@@ -145,7 +144,7 @@ test("高分辨率横竖卡片真实下载 PNG", async ({ page }) => {
       await close(page);
     }
     const download = page.waitForEvent("download");
-    await page.getByRole("button", { name: "导出诗词卡片" }).click();
+    await tool(page, "导出诗词卡片");
     const file = await download;
     const fs = require("node:fs");
     const data = fs.readFileSync(await file.path());
@@ -198,10 +197,9 @@ test("复制快捷键、朗读降级提示和输入法呼出", async ({ page, co
   await expect(page.getByRole("searchbox")).toHaveValue("月");
 });
 
-test("传统竖排小屏与桌面渲染不溢出", async ({ page }) => {
+test("竖排小屏与桌面渲染不溢出", async ({ page }) => {
   await settings(page);
   await page.getByLabel("竖排排版").check();
-  await page.getByLabel("繁体显示").check();
   await close(page);
   await expect(page.locator(".poem-title")).toHaveCSS(
     "writing-mode",
@@ -216,4 +214,72 @@ test("传统竖排小屏与桌面渲染不溢出", async ({ page }) => {
     ),
   ).toBe(true);
   await page.screenshot({ path: "test-results/mobile-vertical.png" });
+});
+
+test("初始默认 Bing 与宣纸纹理，已移除繁体显示入口", async ({ page }) => {
+  await expect(page.locator("#app")).toHaveClass(/paper-texture/);
+  await settings(page);
+  await expect(page.getByLabel("默认搜索引擎")).toHaveValue("Bing");
+  await expect(page.getByLabel("宣纸纹理")).toBeChecked();
+  await expect(page.getByText("繁体显示", { exact: true })).toHaveCount(0);
+  await page.getByLabel("宣纸纹理").uncheck();
+  await close(page);
+  await expect(page.locator("#app")).not.toHaveClass(/paper-texture/);
+  await page.reload();
+  await expect(page.locator("#app")).not.toHaveClass(/paper-texture/);
+});
+
+test("工具栏默认收起，悬停、点击、键盘都能展开及收起", async ({ page }) => {
+  const trigger = page.getByRole("button", { name: "诗词工具", exact: true });
+  await expect(page.locator(".poem-toolbar button:visible")).toHaveCount(1);
+  await trigger.hover();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await expect(
+    page.getByRole("button", { name: "设置", exact: true }),
+  ).toBeVisible();
+  await page.locator(".poem-stage").hover({ position: { x: 5, y: 5 } });
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await trigger.click();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await page.keyboard.press("Escape");
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await page.keyboard.press("Tab");
+  await trigger.focus();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#theme-toggle")).toBeFocused();
+});
+
+test("长出处和长作者的竖排布局，小屏仍完整显示", async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem("preferences", JSON.stringify({ vertical: true }));
+    localStorage.setItem("favorites", JSON.stringify(["tianchou", "mengzi"]));
+  });
+  await page.reload();
+  await page.setViewportSize({ width: 375, height: 667 });
+  for (const index of [0, 1]) {
+    await tool(page, "收藏与历史");
+    await page.locator(".library-list button").nth(index).click();
+    await expect(page.locator(".source-title")).toHaveCSS(
+      "writing-mode",
+      "vertical-rl",
+    );
+    await expect(page.locator(".author-seal")).toHaveCSS(
+      "writing-mode",
+      "vertical-rl",
+    );
+    for (const selector of [".poem-title", ".source-title", ".author-seal"]) {
+      const box = await page.locator(selector).boundingBox();
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(375);
+      expect(box.y + box.height).toBeLessThan(600);
+    }
+    await page.locator(".poem-stage").click({ position: { x: 5, y: 5 } });
+    await page
+      .locator(".poem")
+      .evaluate((element) =>
+        element.getAnimations().forEach((animation) => animation.finish()),
+      );
+    await page.screenshot({ path: `test-results/vertical-long-${index}.png` });
+  }
 });

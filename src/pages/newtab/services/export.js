@@ -22,7 +22,7 @@ export async function exportPoem(poem, font, vertical, colors) {
       : 1800 / Math.max(...lines.map((line) => [...line].length)),
     1400 / (lines.length * 1.8),
   );
-  context.font = `${size}px "${font}", serif`;
+  context.font = `${size}px "${font}", "LXGW WenKai Light", serif`;
   context.textBaseline = "alphabetic";
   const drawText = (text, x, y, maxWidth = 1800) => {
     const metrics = context.measureText(text);
@@ -54,7 +54,7 @@ export async function exportPoem(poem, font, vertical, colors) {
     );
   }
   context.textAlign = "center";
-  context.font = `54px "${font}", serif`;
+  context.font = `54px "${font}", "LXGW WenKai Light", serif`;
   drawText(`「${poem.from}」`, 1080, 2250, 1800);
   const sealWidth = Math.max(100, context.measureText(poem.who).width + 48);
   context.fillStyle = "#a52e2e";

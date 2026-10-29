@@ -32,7 +32,7 @@ select:focus-visible {
   outline-offset: 5px;
 }
 .custom-font {
-  font-family: var(--custom-font-name), 楷体, serif;
+  font-family: var(--custom-font-name), "LXGW WenKai Light", 楷体, serif;
 }
 #app {
   min-height: 100dvh;
@@ -78,24 +78,48 @@ select:focus-visible {
 .poem-vertical {
   display: flex;
   flex-direction: row-reverse;
-  align-items: center;
-  gap: 2rem;
+  align-items: flex-start;
+  gap: clamp(1.5rem, 4vw, 3rem);
   overflow-x: auto;
+  padding: 0.5rem;
 }
 .poem-vertical .poem-title {
   writing-mode: vertical-rl;
   text-orientation: upright;
-  max-height: 68dvh;
+  max-height: 60dvh;
   margin: 0;
   text-align: start;
+  line-height: 1.9;
+  letter-spacing: 0.12em;
 }
 .poem-vertical .poem-source {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.2rem;
+  padding-top: 0.5em;
+  flex-shrink: 0;
+  font-size: clamp(0.9rem, 2vw, 1.15rem);
+}
+.poem-vertical .source-title {
   writing-mode: vertical-rl;
-  flex-direction: row;
-  font-size: 1.4rem;
+  text-orientation: upright;
+  max-height: 36dvh;
+  line-height: 1.7;
+  letter-spacing: 0.15em;
+  text-align: start;
 }
 .poem-vertical .author-seal {
-  letter-spacing: 0.15em;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  height: 3.8em;
+  flex: none;
+  padding: 0.3em 0.2em;
+  border: 3px double currentColor;
+  border-radius: 0;
+  line-height: 1.25;
+  letter-spacing: 0.1em;
+  word-break: break-all;
 }
 .poem-toolbar {
   position: fixed;
@@ -108,6 +132,19 @@ select:focus-visible {
   width: fit-content;
   max-width: calc(100% - 3rem);
   z-index: 2;
+}
+.toolbar-actions {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  padding-bottom: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  width: min(30rem, calc(100vw - 3rem));
+}
+.toolbar-actions[hidden] {
+  display: none;
 }
 .poem-toolbar button {
   opacity: 0.25;
