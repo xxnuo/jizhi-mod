@@ -84,8 +84,8 @@ export async function exportPoem(
   context.translate(-canvas.width / 2, -canvas.height / 2);
   context.fillStyle = colors.foreground;
   const lines = formatPoem(poem.title).split("\n");
-  const maxWidth = canvas.width * 0.8;
-  const maxHeight = canvas.height * 0.62;
+  const maxWidth = canvas.width * Math.min(0.8, 0.9 / contentScale);
+  const maxHeight = canvas.height * Math.min(0.62, 0.72 / contentScale);
   context.textAlign = "center";
   context.textBaseline = "alphabetic";
   const setFont = (size) => {

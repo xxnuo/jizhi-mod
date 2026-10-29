@@ -6,7 +6,7 @@ export const CARD_RATIOS = {
 };
 
 export const CARD_MARGINS = {
-  narrow: { name: "窄", scale: 1.15 },
+  narrow: { name: "窄", scale: 1.4 },
   medium: { name: "适中", scale: 1 },
-  wide: { name: "宽", scale: 0.8 },
+  wide: { name: "宽", scale: 0.6 },
 };

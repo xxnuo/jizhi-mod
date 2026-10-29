@@ -126,10 +126,10 @@ test("分享卡片可单独切换横竖排版和三档边距，重新打开跟�
         "horizontal-tb",
       );
     }
-    expect(sizes[0].width).toBeGreaterThan(sizes[1].width);
-    expect(sizes[1].width).toBeGreaterThan(sizes[2].width);
-    expect(sizes[0].height).toBeGreaterThan(sizes[1].height);
-    expect(sizes[1].height).toBeGreaterThan(sizes[2].height);
+    expect(sizes[0].width).toBeGreaterThan(sizes[1].width * 1.25);
+    expect(sizes[2].width).toBeLessThan(sizes[1].width * 0.75);
+    expect(sizes[0].height).toBeGreaterThan(sizes[1].height * 1.25);
+    expect(sizes[2].height).toBeLessThan(sizes[1].height * 0.75);
   }
   await settings(page);
   await page.getByLabel("竖排排版").check();
