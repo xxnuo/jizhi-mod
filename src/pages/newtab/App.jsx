@@ -9,11 +9,14 @@ import { useVoice } from "./hooks/useVoice";
 import { useLibrary } from "./hooks/useLibrary";
 import { getRandomPoem, poemText } from "./services/poems";
 import { LIBRARY } from "./services/library";
+import { artworkFor, artworkUrl, frameFor } from "./services/artwork";
 import {
   readPreferences,
   writeStorage,
   ENGINES,
   backgroundColor,
+  selectedBackground,
+  colorInk,
 } from "./services/preferences";
 
 export default function App() {
@@ -25,6 +28,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
   const [exporting, setExporting] = useState(false);
+  const [showBackground, setShowBackground] = useState(true);
   const [tab, setTab] = useState("favorites");
   const notify = useCallback((message) => setNotice(message), []);
   const { isMuted, toggleMute, playVoice, stopVoice, status } =
@@ -137,6 +141,12 @@ export default function App() {
       await exportPoem(poem, currentFont, preferences.vertical, {
         background: color.backgroundColor,
         foreground: color.color,
+        texture: preferences.texture,
+        artwork,
+        frame,
+        artworkFill: preferences.artworkFill,
+        framePosition: preferences.framePosition,
+        dark: isDark,
       });
       notify("诗词卡片已导出");
     } catch {
@@ -148,18 +158,29 @@ export default function App() {
   const ids = (tab === "favorites" ? favorites : history).filter((id) =>
     LIBRARY.some((entry) => entry.id === id),
   );
-  const background = backgroundColor(
-    preferences.background,
-    theme === "sync" ? dark : theme === "dark",
-    day,
-  );
+  const isDark = theme === "sync" ? dark : theme === "dark";
+  const background = backgroundColor(preferences.background, isDark, day);
+  const color = selectedBackground(preferences.background, day);
+  const artwork = artworkFor(preferences.artwork);
+  const frame = frameFor(preferences.frame, color);
+  useEffect(() => {
+    setShowBackground(true);
+    const timer = setTimeout(() => setShowBackground(false), 3000);
+    return () => clearTimeout(timer);
+  }, [background]);
   return (
     <div
       id="app"
       className={`custom-font ${preferences.texture ? "paper-texture" : ""}`}
       style={{
         "--custom-font-name": currentFont,
-        ...(background ? { backgroundColor: background } : {}),
+        "--scene-opacity": isDark ? 0.35 : 0.55,
+        ...(background
+          ? {
+              "--color-base-100": background,
+              "--color-base-content": colorInk(background),
+            }
+          : {}),
       }}
       onDoubleClick={(event) => {
         if (
@@ -169,6 +190,35 @@ export default function App() {
           nextPoem();
       }}
     >
+      <div className="background-scene" aria-hidden="true">
+        {artwork && (
+          <img
+            className="background-artwork"
+            src={artworkUrl(artwork.file)}
+            alt=""
+            style={{ objectFit: preferences.artworkFill }}
+          />
+        )}
+        {frame && (
+          <img
+            className="background-frame"
+            src={artworkUrl(frame.file)}
+            alt=""
+            data-position={preferences.framePosition}
+          />
+        )}
+      </div>
+      {background && (
+        <aside className="background-caption" aria-label="当前背景色">
+          <div
+            className="background-caption-content"
+            data-show={showBackground}
+          >
+            <span>{color.name}</span>
+            <small>{background.toUpperCase()}</small>
+          </div>
+        </aside>
+      )}
       <main className="poem-stage">
         <PoemDisplay
           poem={poem}

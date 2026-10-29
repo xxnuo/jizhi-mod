@@ -7,12 +7,176 @@ import {
   writeStorage,
   backgroundColor,
   ENGINES,
+  BACKGROUNDS,
+  BACKGROUND_GROUPS,
+  colorInk,
+  selectedBackground,
 } from "../src/pages/newtab/services/preferences";
 import { poemText } from "../src/pages/newtab/services/poems";
+import { readdirSync } from "node:fs";
+import {
+  ARTWORKS,
+  FRAMES,
+  artworkFor,
+  frameFor,
+  backgroundRect,
+} from "../src/pages/newtab/services/artwork";
 
 beforeEach(() => {
   localStorage.clear();
   vi.restoreAllMocks();
+});
+test("大背景与边饰全部可选、无多余素材，旧的小幅配景迁移至边饰", () => {
+  expect(artworkFor("none")).toBeUndefined();
+  expect(artworkFor("lake").file).toBe("background-hengshan.webp");
+  expect(frameFor("auto", BACKGROUNDS["traditional-0-0"]).file).toBe(
+    "flower.moon.webp",
+  );
+  expect(frameFor("auto").file).toBe("qunshan.webp");
+  const files = [...Object.values(ARTWORKS), ...Object.values(FRAMES)]
+    .filter((item) => item.file)
+    .map((item) => item.file);
+  expect(new Set(files).size).toBe(files.length);
+  expect(readdirSync("public/illustrations").sort()).toEqual([...files].sort());
+  expect(FRAMES).not.toHaveProperty("eaves");
+  for (const color of Object.values(BACKGROUNDS))
+    if (color.figure) expect(FRAMES[color.figure]?.file).toBeTruthy();
+  localStorage.setItem(
+    "preferences",
+    JSON.stringify({
+      artwork: "lotus",
+      artworkPosition: "top-left",
+      frame: "none",
+    }),
+  );
+  expect(readPreferences()).toMatchObject({
+    artwork: "none",
+    frame: "lotus",
+    framePosition: "top-left",
+    artworkFill: "cover",
+  });
+  localStorage.setItem(
+    "preferences",
+    JSON.stringify({
+      artwork: "lotuspond",
+      artworkPosition: "top-right",
+      frame: "none",
+    }),
+  );
+  expect(readPreferences()).toMatchObject({
+    artwork: "none",
+    frame: "lotuspond",
+    framePosition: "top-right",
+  });
+  localStorage.setItem(
+    "preferences",
+    JSON.stringify({ artwork: "moon", frame: "eaves" }),
+  );
+  expect(readPreferences()).toMatchObject({ artwork: "none", frame: "moon" });
+  localStorage.setItem(
+    "preferences",
+    JSON.stringify({
+      artwork: "lotus",
+      frame: "plum",
+      framePosition: "bottom-left",
+    }),
+  );
+  expect(readPreferences()).toMatchObject({
+    artwork: "none",
+    frame: "plum",
+    framePosition: "bottom-left",
+  });
+  localStorage.setItem(
+    "preferences",
+    JSON.stringify({
+      artwork: "__proto__",
+      frame: "constructor",
+      artworkFill: "__proto__",
+      framePosition: "left",
+    }),
+  );
+  expect(readPreferences()).toMatchObject({
+    artwork: "none",
+    frame: "none",
+    artworkFill: "cover",
+    framePosition: "bottom-right",
+  });
+  for (const frame of ["eaves", "lantern", "papercut"]) {
+    localStorage.setItem("preferences", JSON.stringify({ frame }));
+    expect(readPreferences().frame).toBe("none");
+  }
+});
+test("背景填充几何：裁切铺满、完整显示、拉伸及原尺寸居中", () => {
+  expect(backgroundRect(400, 200, 100, 100, "cover")).toEqual({
+    x: -50,
+    y: 0,
+    width: 200,
+    height: 100,
+  });
+  expect(backgroundRect(400, 200, 100, 100, "contain")).toEqual({
+    x: 0,
+    y: 25,
+    width: 100,
+    height: 50,
+  });
+  expect(backgroundRect(400, 200, 100, 100, "fill")).toEqual({
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100,
+  });
+  expect(backgroundRect(400, 200, 100, 100, "none")).toEqual({
+    x: -150,
+    y: -50,
+    width: 400,
+    height: 200,
+  });
+  expect(backgroundRect(200, 400, 100, 100, "cover")).toEqual({
+    x: 0,
+    y: -50,
+    width: 100,
+    height: 200,
+  });
+  expect(backgroundRect(400, 200, 100, 100, "none", 2)).toEqual({
+    x: -350,
+    y: -150,
+    width: 800,
+    height: 400,
+  });
+});
+test("传统色分组完整、明暗文字对比达标，旧背景偏好仍然有效", () => {
+  expect(BACKGROUND_GROUPS).toHaveLength(10);
+  const colors = Object.entries(BACKGROUNDS).filter(([, color]) => color.light);
+  expect(colors).toHaveLength(165);
+  for (const [id, color] of colors) {
+    localStorage.setItem("preferences", JSON.stringify({ background: id }));
+    expect(readPreferences().background).toBe(id);
+    for (const dark of [false, true]) {
+      const hex = backgroundColor(id, dark);
+      expect(hex).toMatch(/^#[0-9a-f]{6}$/i);
+      const rgb = hex
+        .slice(1)
+        .match(/../g)
+        .map((channel) => {
+          const value = parseInt(channel, 16) / 255;
+          return value <= 0.04045
+            ? value / 12.92
+            : ((value + 0.055) / 1.055) ** 2.4;
+        });
+      const luminance = rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+      const contrast =
+        colorInk(hex) === "#000000"
+          ? (luminance + 0.05) / 0.05
+          : 1.05 / (luminance + 0.05);
+      expect(contrast).toBeGreaterThanOrEqual(4.5);
+    }
+  }
+  expect(colorInk("#000000")).toBe("#ffffff");
+  expect(colorInk("#ffffff")).toBe("#000000");
+  const date = new Date(2026, 9, 29);
+  expect(backgroundColor("daily", false, date)).toBe(
+    selectedBackground("daily", date).light,
+  );
 });
 test("原始词库逐条保留，不替换、不截断正文和出处", () => {
   expect(LIBRARY).toHaveLength(SENTENCES.length);

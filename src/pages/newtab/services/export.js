@@ -1,4 +1,58 @@
 import { formatPoem } from "./poems";
+import { artworkUrl, backgroundRect } from "./artwork";
+import paperTexture from "../../../../assets/textures/chinese-paper.png";
+
+async function drawBackground(context, canvas, colors) {
+  const load = async (url) => {
+    const image = new Image();
+    image.src = url;
+    await image.decode();
+    return image;
+  };
+  const [paper, artwork, frame] = await Promise.all([
+    colors.texture ? load(paperTexture) : undefined,
+    colors.artwork ? load(artworkUrl(colors.artwork.file)) : undefined,
+    colors.frame?.file ? load(artworkUrl(colors.frame.file)) : undefined,
+  ]);
+  context.save();
+  if (paper) {
+    context.fillStyle = context.createPattern(paper, "repeat");
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  context.globalAlpha = colors.dark ? 0.35 : 0.55;
+  if (artwork) {
+    const rect = backgroundRect(
+      artwork.width,
+      artwork.height,
+      canvas.width,
+      canvas.height,
+      colors.artworkFill,
+      canvas.width / 1080,
+    );
+    context.globalAlpha *= 0.6;
+    context.drawImage(artwork, rect.x, rect.y, rect.width, rect.height);
+  }
+  context.globalAlpha = colors.dark ? 0.35 : 0.55;
+  if (frame) {
+    const scale = Math.min(
+      (canvas.width * 192) / 1080 / frame.width,
+      (canvas.height * 0.24) / frame.height,
+    );
+    const width = frame.width * scale;
+    const height = frame.height * scale;
+    const inset = (canvas.width * 20) / 1080;
+    const left = colors.framePosition.endsWith("-left");
+    const top = colors.framePosition.startsWith("top-");
+    context.drawImage(
+      frame,
+      left ? inset : canvas.width - width - inset,
+      top ? inset : canvas.height - height - inset,
+      width,
+      height,
+    );
+  }
+  context.restore();
+}
 
 export async function exportPoem(poem, font, vertical, colors) {
   await document.fonts.load(
@@ -13,6 +67,7 @@ export async function exportPoem(poem, font, vertical, colors) {
   if (!context) throw new Error("浏览器不支持图片导出");
   context.fillStyle = colors.background;
   context.fillRect(0, 0, canvas.width, canvas.height);
+  await drawBackground(context, canvas, colors);
   context.fillStyle = colors.foreground;
   const lines = formatPoem(poem.title).split("\n");
   const size = Math.min(

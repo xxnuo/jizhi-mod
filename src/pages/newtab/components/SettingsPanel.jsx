@@ -16,7 +16,10 @@ import {
 } from "react-icons/io5";
 import { MdTimelapse } from "react-icons/md";
 import { BiFontFamily } from "react-icons/bi";
-import { BACKGROUNDS, ENGINES } from "../services/preferences";
+import { ENGINES } from "../services/preferences";
+import BackgroundPicker from "./BackgroundPicker";
+import ArtworkPicker from "./ArtworkPicker";
+import { ARTWORKS, FRAMES, POSITIONS, FILLS } from "../services/artwork";
 
 export function Preferences({ preferences, onChange }) {
   return (
@@ -40,20 +43,10 @@ export function Preferences({ preferences, onChange }) {
           ))}
         </select>
       </label>
-      <label>
-        <span>背景</span>
-        <select
-          aria-label="背景"
-          value={preferences.background}
-          onChange={(event) => onChange({ background: event.target.value })}
-        >
-          {Object.entries(BACKGROUNDS).map(([value, color]) => (
-            <option key={value} value={value}>
-              {color.name}
-            </option>
-          ))}
-        </select>
-      </label>
+      <BackgroundPicker
+        value={preferences.background}
+        onChange={(background) => onChange({ background })}
+      />
       <label>
         <span>宣纸纹理</span>
         <input
@@ -62,6 +55,26 @@ export function Preferences({ preferences, onChange }) {
           onChange={(event) => onChange({ texture: event.target.checked })}
         />
       </label>
+      <ArtworkPicker
+        label="国画配图"
+        options={ARTWORKS}
+        value={preferences.artwork}
+        setting={preferences.artworkFill}
+        settingLabel="填充样式"
+        settings={FILLS}
+        onSelect={(artwork) => onChange({ artwork })}
+        onSettingChange={(artworkFill) => onChange({ artworkFill })}
+      />
+      <ArtworkPicker
+        label="画面边饰"
+        options={FRAMES}
+        value={preferences.frame}
+        setting={preferences.framePosition}
+        settingLabel="边饰位置"
+        settings={POSITIONS}
+        onSelect={(frame) => onChange({ frame })}
+        onSettingChange={(framePosition) => onChange({ framePosition })}
+      />
 
       <p className="settings-help">
         空格 / 双击空白：换一句；F：字体；T：主题；C：复制；S：朗读 / 暂停；/

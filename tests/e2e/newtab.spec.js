@@ -1,5 +1,5 @@
 const SENTENCES = require("sentences-bundle/sentences/i.json");
-const { tool } = require("./helpers");
+const { tool, selectBackground, selectDecoration } = require("./helpers");
 const { test, expect } = require("@playwright/test");
 
 test.beforeEach(async ({ page }) => {
@@ -12,6 +12,337 @@ async function settings(page) {
 async function close(page) {
   await page.getByRole("button", { name: "关闭", exact: true }).click();
 }
+
+test("大幅国画和全部边饰逐张预览，四角定位和填充样式保存", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
+  await settings(page);
+  await expect(page.getByLabel("配景位置")).toHaveCount(0);
+  await expect(page.getByLabel("填充样式").locator("option")).toHaveCount(4);
+  await expect(page.getByLabel("边饰位置").locator("option")).toHaveCount(4);
+  await expect(
+    page.getByRole("button", { name: "瓦檐", exact: true }),
+  ).toHaveCount(0);
+  for (const [label, selector, count] of [
+    ["国画配图", ".background-artwork", 7],
+    ["画面边饰", ".background-frame", 38],
+  ]) {
+    const picker = page.getByRole("group", { name: label, exact: true });
+    const buttons = picker.locator("button:has(img)");
+    await expect(buttons).toHaveCount(count);
+    for (const button of await buttons.all()) {
+      await button.click();
+      await expect(button).toHaveAttribute("aria-pressed", "true");
+      const image = button.locator("img");
+      await expect
+        .poll(() => image.evaluate((el) => el.complete && el.naturalWidth > 0))
+        .toBe(true);
+      const size = await image.evaluate((el) =>
+        Math.max(el.naturalWidth, el.naturalHeight),
+      );
+      if (label === "国画配图") expect(size).toBeGreaterThanOrEqual(1000);
+      else expect(size).toBeLessThanOrEqual(512);
+      await expect(page.locator(selector)).toHaveAttribute(
+        "src",
+        await image.getAttribute("src"),
+      );
+    }
+    await picker.locator(".image-options").evaluate((el) => {
+      el.scrollTop = 0;
+    });
+    await picker.scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: `test-results/gallery-${selector.slice(1)}.png`,
+    });
+  }
+  await selectDecoration(page, "国画配图", "lake");
+  await selectDecoration(page, "画面边饰", "moon");
+  await page.getByLabel("填充样式").selectOption("contain");
+  await close(page);
+  for (const position of [
+    "top-left",
+    "top-right",
+    "bottom-left",
+    "bottom-right",
+  ]) {
+    await settings(page);
+    await page.getByLabel("边饰位置").selectOption(position);
+    await close(page);
+    await expect(page.locator(".background-frame")).toHaveAttribute(
+      "data-position",
+      position,
+    );
+    const box = await page.locator(".background-frame").boundingBox();
+    expect(position.endsWith("left") ? box.x : box.x + box.width).toBeCloseTo(
+      position.endsWith("left") ? 20 : 1260,
+      0,
+    );
+    expect(position.startsWith("top") ? box.y : box.y + box.height).toBeCloseTo(
+      position.startsWith("top") ? 20 : 700,
+      0,
+    );
+  }
+  await page.reload();
+  await expect(page.locator(".background-artwork")).toHaveCSS(
+    "object-fit",
+    "contain",
+  );
+  expect((await page.locator(".background-artwork").boundingBox()).width).toBe(
+    1280,
+  );
+  await page.screenshot({ path: "test-results/full-background-desktop.png" });
+  await page.setViewportSize({ width: 375, height: 667 });
+  expect((await page.locator(".background-artwork").boundingBox()).width).toBe(
+    375,
+  );
+  expect(
+    (await page.locator(".background-frame").boundingBox()).width,
+  ).toBeLessThanOrEqual(105);
+  await page.screenshot({ path: "test-results/full-background-mobile.png" });
+});
+
+test("背景四种填充样式导出不同画面", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
+  const hashes = new Set();
+  for (const fill of ["cover", "contain", "fill", "none"]) {
+    await settings(page);
+    await selectDecoration(page, "国画配图", "lake");
+    await selectDecoration(page, "画面边饰", "none");
+    await page.getByLabel("填充样式").selectOption(fill);
+    await close(page);
+    await expect(page.locator(".background-artwork")).toHaveCSS(
+      "object-fit",
+      fill,
+    );
+    const downloaded = page.waitForEvent("download");
+    await tool(page, "导出诗词卡片");
+    const file = await downloaded;
+    const data = require("node:fs").readFileSync(await file.path());
+    hashes.add(
+      require("node:crypto").createHash("sha256").update(data).digest("hex"),
+    );
+    await file.saveAs(`test-results/card-background-${fill}.png`);
+  }
+  expect(hashes.size).toBe(4);
+});
+
+test("卡片导出在四个角准确绘制边饰", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
+  const positions = ["top-left", "top-right", "bottom-left", "bottom-right"];
+  for (const [index, position] of positions.entries()) {
+    await settings(page);
+    await selectBackground(page, "yuebai");
+    await page.getByLabel("宣纸纹理").uncheck();
+    await selectDecoration(page, "国画配图", "none");
+    await selectDecoration(page, "画面边饰", "bamboo");
+    await page.getByLabel("边饰位置").selectOption(position);
+    await close(page);
+    const downloaded = page.waitForEvent("download");
+    await tool(page, "导出诗词卡片");
+    const file = await downloaded;
+    const base64 = require("node:fs")
+      .readFileSync(await file.path())
+      .toString("base64");
+    const counts = await page.evaluate(async (base64) => {
+      const image = new Image();
+      image.src = `data:image/png;base64,${base64}`;
+      await image.decode();
+      const canvas = document.createElement("canvas");
+      canvas.width = 108;
+      canvas.height = 144;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(image, 0, 0, 108, 144);
+      return [
+        [0, 0],
+        [81, 0],
+        [0, 104],
+        [81, 104],
+      ].map(([x, y]) => {
+        const d = ctx.getImageData(x, y, 27, 40).data;
+        return new Set(
+          Array.from(
+            { length: d.length / 4 },
+            (_, i) => `${d[i * 4]},${d[i * 4 + 1]},${d[i * 4 + 2]}`,
+          ),
+        ).size;
+      });
+    }, base64);
+    counts.forEach((count, i) =>
+      i === index ? expect(count).toBeGreaterThan(5) : expect(count).toBe(1),
+    );
+  }
+});
+
+test("色调只有一个设置条目，主题、每日色与色签互斥选择", async ({ page }) => {
+  await settings(page);
+  await expect(
+    page.getByRole("group", { name: "色调", exact: true }),
+  ).toHaveCount(1);
+  await expect(
+    page.getByRole("combobox", { name: "色调", exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByText("中国传统色", { exact: true })).toHaveCount(0);
+  await expect(
+    page
+      .getByRole("group", { name: "画面边饰", exact: true })
+      .getByRole("button", { name: "瓦檐", exact: true }),
+  ).toHaveCount(0);
+  const swatches = page.getByRole("group", { name: "背景色签" });
+  await expect(swatches.getByRole("button")).toHaveCount(6);
+  await expect(
+    swatches.getByRole("button", { name: "跟随主题", exact: true }),
+  ).toBeVisible();
+  await expect(
+    swatches.getByRole("button", { name: "每日传统色", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("group", { name: "色系", exact: true })
+    .getByRole("button", { name: "红", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "跟随主题", exact: true }),
+  ).toHaveCount(0);
+  await selectBackground(page, "daily");
+  await close(page);
+  await page.reload();
+  await settings(page);
+  await expect(
+    page.getByRole("button", { name: "每日传统色", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await selectBackground(page, "yuebai");
+  await expect(
+    page.getByRole("button", { name: "每日传统色", exact: true }),
+  ).toHaveAttribute("aria-pressed", "false");
+  await expect(
+    page.getByRole("button", { name: "选用月白", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await selectBackground(page, "theme");
+  await expect(
+    page.getByRole("button", { name: "选用月白", exact: true }),
+  ).toHaveAttribute("aria-pressed", "false");
+  await close(page);
+  await expect(page.getByLabel("当前背景色")).toHaveCount(0);
+});
+
+test("宣纸使用本地纹理，色名三秒后隐藏、移入恢复，减少动态效果时同样生效", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await settings(page);
+  await selectBackground(page, "yuebai");
+  await close(page);
+  await page.mouse.move(10, 300);
+  const caption = page.locator(".background-caption-content");
+  await expect(caption).toHaveCSS("opacity", "0.65");
+  const texture = await page
+    .locator("#app")
+    .evaluate(
+      (element) => getComputedStyle(element, "::before").backgroundImage,
+    );
+  expect(texture).toMatch(/chinese-paper.*\.png/);
+  const textureUrl = texture.match(/url\("?([^"\)]+)"?\)/)[1];
+  expect((await page.request.get(textureUrl)).ok()).toBe(true);
+  await expect(caption).toHaveCSS("opacity", "0", { timeout: 5000 });
+  await page.screenshot({
+    path: "test-results/paper-texture-caption-hidden.png",
+  });
+  await page.mouse.move(1260, 20);
+  await expect(caption).toHaveCSS("opacity", "0.65");
+  await page.mouse.move(10, 300);
+  await expect(caption).toHaveCSS("opacity", "0");
+  await settings(page);
+  await selectBackground(page, "tianqing");
+  await close(page);
+  await expect(caption).toHaveCSS("opacity", "0.65");
+  await page.reload();
+  await expect(caption).toHaveCSS("opacity", "0.65");
+  await page.setViewportSize({ width: 375, height: 667 });
+  await expect(caption).toHaveCSS("opacity", "0", { timeout: 5000 });
+  await page.screenshot({ path: "test-results/paper-texture-mobile.png" });
+});
+
+test("传统色色签分类、明暗适配和持久化，小屏无溢出", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+  await settings(page);
+  await page.getByLabel("宣纸纹理").uncheck();
+  await selectDecoration(page, "国画配图", "none");
+  const groups = page.getByRole("group", { name: "色系", exact: true });
+  await groups.getByRole("button", { name: "红", exact: true }).click();
+  await expect(
+    page.getByRole("group", { name: "背景色签" }).getByRole("button"),
+  ).toHaveCount(28);
+  await page.getByRole("button", { name: "选用胭脂", exact: true }).click();
+  await expect(
+    page.getByRole("group", { name: "色调", exact: true }),
+  ).toHaveCount(1);
+  await expect(
+    page.getByRole("combobox", { name: "色调", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "选用胭脂", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("dialog")).toHaveCSS(
+    "background-color",
+    "rgb(157, 41, 51)",
+  );
+  await expect(page.getByRole("dialog")).toHaveCSS(
+    "color",
+    "rgb(255, 255, 255)",
+  );
+  await page.screenshot({
+    path: "test-results/traditional-colors-desktop.png",
+  });
+  await close(page);
+  await expect(page.locator("#app")).toHaveCSS(
+    "background-color",
+    "rgb(157, 41, 51)",
+  );
+  await expect(page.getByLabel("当前背景色")).toContainText("胭脂#9D2933");
+  const downloaded = page.waitForEvent("download");
+  await tool(page, "导出诗词卡片");
+  const file = await downloaded;
+  const base64 = require("node:fs")
+    .readFileSync(await file.path())
+    .toString("base64");
+  const pixel = await page.evaluate(async (base64) => {
+    const image = new Image();
+    image.src = `data:image/png;base64,${base64}`;
+    await image.decode();
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 1;
+    const context = canvas.getContext("2d");
+    context.drawImage(image, 0, 0);
+    return [...context.getImageData(0, 0, 1, 1).data];
+  }, base64);
+  expect(pixel).toEqual([157, 41, 51, 255]);
+  await page.reload();
+  await expect(page.locator("#app")).toHaveCSS(
+    "background-color",
+    "rgb(157, 41, 51)",
+  );
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await expect(page.locator("#app")).not.toHaveCSS(
+    "background-color",
+    "rgb(157, 41, 51)",
+  );
+  await expect(page.locator("#app")).toHaveCSS("color", "rgb(255, 255, 255)");
+  await page.setViewportSize({ width: 375, height: 667 });
+  await settings(page);
+  await groups.getByRole("button", { name: "绿", exact: true }).click();
+  await expect(
+    page.getByRole("group", { name: "背景色签" }).getByRole("button"),
+  ).toHaveCount(32);
+  expect(
+    await page
+      .getByRole("dialog")
+      .evaluate((el) => el.scrollWidth <= el.clientWidth),
+  ).toBe(true);
+  await page.screenshot({
+    path: "test-results/traditional-colors-mobile-dark.png",
+  });
+  await page.getByRole("button", { name: "选用豆绿", exact: true }).click();
+  await close(page);
+  await page.screenshot({ path: "test-results/traditional-color-poem.png" });
+});
 
 test("点击出处和作者直接搜索，保留完整原始语句库", async ({
   page,
@@ -47,7 +378,7 @@ test("点击出处和作者直接搜索，保留完整原始语句库", async ({
 test("竖排、背景纹理与设置持久化", async ({ page }) => {
   await settings(page);
   await page.getByLabel("竖排排版").check();
-  await page.getByLabel("背景", { exact: true }).selectOption("yanzhi");
+  await selectBackground(page, "yanzhi");
   await page.getByLabel("宣纸纹理").check();
   await close(page);
   await expect(page.locator(".poem-title")).toHaveCSS(

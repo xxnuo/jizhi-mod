@@ -1,6 +1,73 @@
-const { tool } = require("./helpers");
+const { tool, selectDecoration } = require("./helpers");
 const { test, expect, chromium } = require("@playwright/test");
 const path = require("node:path");
+
+test("真实扩展断网后加载全部国画、边饰与字体，保存配景并导出", async () => {
+  const extension = path.resolve(".output/chrome-mv3");
+  const context = await chromium.launchPersistentContext("", {
+    channel: "chromium",
+    headless: true,
+    args: [
+      `--disable-extensions-except=${extension}`,
+      `--load-extension=${extension}`,
+    ],
+  });
+  try {
+    const worker =
+      context.serviceWorkers()[0] ||
+      (await context.waitForEvent("serviceworker"));
+    const id = new URL(worker.url()).host;
+    await context.setOffline(true);
+    const page = await context.newPage();
+    await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "dark" });
+    await page.goto(`chrome-extension://${id}/newtab.html`);
+    await expect(page.locator(".poem-title")).toBeVisible();
+    const files = require("node:fs").readdirSync(
+      path.join(extension, "illustrations"),
+    );
+    const failed = await page.evaluate(async (files) => {
+      const results = await Promise.all(
+        files.map(async (file) => {
+          const image = new Image();
+          image.src = `/illustrations/${file}`;
+          try {
+            await image.decode();
+            return null;
+          } catch {
+            return file;
+          }
+        }),
+      );
+      return results.filter(Boolean);
+    }, files);
+    expect(failed).toEqual([]);
+    await tool(page, "设置");
+    await selectDecoration(page, "国画配图", "lake");
+    await selectDecoration(page, "画面边饰", "lotus");
+    await page.keyboard.press("Escape");
+    await page.reload();
+    await expect(page.locator(".background-artwork")).toHaveAttribute(
+      "src",
+      "/illustrations/background-hengshan.webp",
+    );
+    await expect(page.locator(".background-frame")).toBeAttached();
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.screenshot({
+      path: "test-results/artwork-extension-dark-offline.png",
+    });
+    for (let index = 0; index < 7; index++) {
+      const downloaded = page.waitForEvent("download");
+      await tool(page, "导出诗词卡片");
+      const file = await downloaded;
+      expect(await file.failure()).toBeNull();
+      if (index === 0)
+        await file.saveAs("test-results/card-extension-offline.png");
+      await tool(page, "切换字体（F）");
+    }
+  } finally {
+    await context.close();
+  }
+});
 
 test("真实 MV3 扩展：后台消息、离线词库、收藏、七种字体与导出", async () => {
   const extension = path.resolve(".output/chrome-mv3");

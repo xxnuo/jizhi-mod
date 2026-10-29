@@ -23,7 +23,7 @@ async function readTexts(directory) {
       const filename = path.join(directory, entry.name);
       return entry.isDirectory()
         ? readTexts(filename)
-        : /\.(jsx?|css|html)$/.test(entry.name)
+        : /\.(jsx?|css|html|json)$/.test(entry.name)
           ? fs.readFile(filename, "utf8")
           : "";
     }),
