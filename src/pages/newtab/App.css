@@ -249,6 +249,12 @@ select:focus-visible {
 .poem-dialog p {
   line-height: 1.9;
 }
+.poem-dialog:has(.preferences) {
+  font-size: calc(1rem + 2px);
+}
+.poem-dialog:has(.preferences) h2 {
+  font-size: calc(1.2rem + 2px);
+}
 .preferences label {
   display: flex;
   align-items: center;
@@ -273,7 +279,7 @@ select:focus-visible {
   background: var(--color-base-100);
 }
 .settings-help {
-  font-size: 0.85rem;
+  font-size: calc(0.85rem + 2px);
   opacity: 0.7;
   margin-top: 1.5rem;
 }
